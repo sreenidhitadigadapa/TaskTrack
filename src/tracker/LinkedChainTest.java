@@ -8,6 +8,7 @@ package tracker;
  * @version 11 Oct 2026
  */
 import student.TestCase;
+
 public class LinkedChainTest extends TestCase {
     private LinkedChain<String> chain;
     /**
