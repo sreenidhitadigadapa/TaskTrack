@@ -2,314 +2,193 @@ package tracker;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.io.FileWriter;
+import java.util.Locale;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.io.IOException;
-import java.io.PrintWriter;
 
+// -------------------------------------------------------------------------
 /**
- * Manages assignments and notes for TaskTrack.
+ * Manages items through the public LinkedChain API.
  *
  * @author sreenidhitadigadapa
- * @version October 2026
+ * @version 11 Oct 2026
  */
-public class TrackerManager
-{
-    private LinkedChain<Item> toDoList;
+public class TrackerManager {
+    private final LinkedChain<Item> items;
     private int nextId;
-
     /**
-     * Creates an empty tracker.
+     * Creates a new TrackerManager instance.
      */
-    public TrackerManager()
-    {
-        toDoList = new LinkedChain<Item>();
-        nextId = 1;
-    }
-
+    public TrackerManager() { items = new LinkedChain<Item>(); nextId = 1; }
     /**
-     * Creates and stores an assignment.
-     *
-     * @param title assignment title
-     * @param text assignment description
-     * @param dueDate due date
-     * @param course course name
-     * @return created assignment
+     * Performs the create assignment operation.
+     * @param title input for this operation
+     * @param text input for this operation
+     * @param dueDate input for this operation
+     * @param course input for this operation
+     * @return result of the operation
      */
-    public Assignment createAssignment(
-        String title,
-        String text,
-        String dueDate,
-        String course)
-    {
-        if (title == null || title.trim().isEmpty())
-        {
-            throw new IllegalArgumentException(
-                "Assignment title cannot be empty");
-        }
-
-        Assignment assignment = new Assignment(
-            nextId, title.trim(), text, dueDate, course);
-
-        toDoList.add(assignment);
+    public Assignment createAssignment(String title, String text, String dueDate, String course) {
+        Assignment value = new Assignment(nextId, title, text, dueDate, course);
+        items.addToEnd(value);
         nextId++;
-        return assignment;
+        return value;
     }
-
     /**
-     * Creates and stores a note.
-     *
-     * @param title note title
-     * @param text note text
-     * @return created note
+     * Performs the create note operation.
+     * @param title input for this operation
+     * @param text input for this operation
+     * @return result of the operation
      */
-    public Note createNote(String title, String text)
-    {
-        if (text == null || text.trim().isEmpty())
-        {
-            throw new IllegalArgumentException(
-                "Note text cannot be empty");
-        }
-
-        Note note = new Note(nextId, title, text);
-        toDoList.add(note);
+    public Note createNote(String title, String text) {
+        Note value = new Note(nextId, title, text);
+        items.addToEnd(value);
         nextId++;
-        return note;
+        return value;
     }
-
     /**
-     * Finds an item by its ID.
-     *
-     * @param id item ID as a string
-     * @return matching item, or null
+     * Performs the find by id operation.
+     * @param id input for this operation
+     * @return result of the operation
      */
-    public Item findById(String id)
-    {
-        if (id == null)
-        {
-            return null;
+    public Item findById(String id) {
+        int target;
+        try { target = Integer.parseInt(id == null ? "" : id.trim()); }
+        catch (NumberFormatException e) { return null; }
+        for (int i = 0; i < items.size(); i++) {
+            Item value = items.get(i);
+            if (value.getId() == target) return value;
         }
-
-        int targetId;
-
-        try
-        {
-            targetId = Integer.parseInt(id.trim());
-        }
-        catch (NumberFormatException e)
-        {
-            return null;
-        }
-
-        for (int i = 0; i < toDoList.size(); i++)
-        {
-            Item item = toDoList.get(i);
-
-            if (item.getId() == targetId)
-            {
-                return item;
-            }
-        }
-
         return null;
     }
-
     /**
-     * Marks an assignment complete.
-     *
-     * @param id assignment ID
-     * @return true if completed, false otherwise
+     * Performs the complete assignment operation.
+     * @param id input for this operation
+     * @return result of the operation
      */
-    public boolean completeAssignment(String id)
-    {
-        Item item = findById(id);
-
-        if (item instanceof Assignment)
-        {
-            ((Assignment)item).markComplete();
-            return true;
+    public boolean completeAssignment(String id) {
+        Item value = findById(id);
+        if (!(value instanceof Assignment)) return false;
+        ((Assignment)value).markComplete();
+        return true;
+    }
+    /**
+     * Performs the remove by id operation.
+     * @param id input for this operation
+     * @return result of the operation
+     */
+    public boolean removeById(String id) {
+        Item value = findById(id);
+        return value != null && items.remove(value);
+    }
+    /**
+     * Performs the remove item operation.
+     * @param id input for this operation
+     * @return result of the operation
+     */
+    public boolean removeItem(String id) { return removeById(id); }
+    /**
+     * Performs the clear operation.
+     */
+    public void clear() { items.clear(); }
+    /**
+     * Performs the size operation.
+     * @return result of the operation
+     */
+    public int size() { return items.size(); }
+    /**
+     * Performs the count assignments operation.
+     * @return result of the operation
+     */
+    public int countAssignments() { return getAssignments().size(); }
+    /**
+     * Performs the count notes operation.
+     * @return result of the operation
+     */
+    public int countNotes() { return getNotes().size(); }
+    /**
+     * Returns the all items.
+     * @return result of the operation
+     */
+    public List<Item> getAllItems() {
+        List<Item> result = new ArrayList<Item>();
+        for (int i = 0; i < items.size(); i++) result.add(items.get(i));
+        return result;
+    }
+    /**
+     * Returns the assignments.
+     * @return result of the operation
+     */
+    public List<Assignment> getAssignments() {
+        List<Assignment> result = new ArrayList<Assignment>();
+        for (Item value : getAllItems())
+            if (value instanceof Assignment) result.add((Assignment)value);
+        return result;
+    }
+    /**
+     * Returns the notes.
+     * @return result of the operation
+     */
+    public List<Note> getNotes() {
+        List<Note> result = new ArrayList<Note>();
+        for (Item value : getAllItems())
+            if (value instanceof Note) result.add((Note)value);
+        return result;
+    }
+    /**
+     * Performs the search operation.
+     * @param keyword input for this operation
+     * @return result of the operation
+     */
+    public List<Item> search(String keyword) {
+        List<Item> result = new ArrayList<Item>();
+        if (keyword == null || keyword.trim().isEmpty()) return result;
+        String query = keyword.trim().toLowerCase(Locale.ROOT);
+        for (Item value : getAllItems()) {
+            if (value.getTitle().toLowerCase(Locale.ROOT).contains(query)
+                || value.getText().toLowerCase(Locale.ROOT).contains(query))
+                result.add(value);
         }
-
-        return false;
+        return result;
     }
-
     /**
-     * Removes an item by ID.
-     *
-     * @param id item ID
-     * @return true if removed
+     * Performs the filter by course operation.
+     * @param course input for this operation
+     * @return result of the operation
      */
-    public boolean removeItem(String id)
-    {
-        Item item = findById(id);
-
-        if (item == null)
-        {
-            return false;
-        }
-
-        return toDoList.remove(item);
+    public List<Assignment> filterByCourse(String course) {
+        List<Assignment> result = new ArrayList<Assignment>();
+        if (course == null || course.trim().isEmpty()) return result;
+        for (Assignment value : getAssignments())
+            if (value.getCourse().equalsIgnoreCase(course.trim())) result.add(value);
+        return result;
     }
-
     /**
-     * Removes all items.
+     * Returns the incomplete assignments.
+     * @return result of the operation
      */
-    public void clear()
-    {
-        toDoList.clear();
+    public List<Assignment> getIncompleteAssignments() {
+        List<Assignment> result = new ArrayList<Assignment>();
+        for (Assignment value : getAssignments())
+            if (!value.isCompleted()) result.add(value);
+        return result;
     }
-
     /**
-     * Returns all assignments.
-     *
-     * @return list of assignments
+     * Performs the save operation.
      */
-    public List<Assignment> getAssignments()
-    {
-        List<Assignment> results = new ArrayList<Assignment>();
-
-        for (int i = 0; i < toDoList.size(); i++)
-        {
-            Item item = toDoList.get(i);
-
-            if (item instanceof Assignment)
-            {
-                results.add((Assignment)item);
-            }
-        }
-
-        return results;
-    }
-
+    public void save() { save("tasktrack.txt"); }
     /**
-     * Returns all notes.
-     *
-     * @return list of notes
+     * Performs the save operation.
+     * @param filename input for this operation
      */
-    public List<Note> getNotes()
-    {
-        List<Note> results = new ArrayList<Note>();
-
-        for (int i = 0; i < toDoList.size(); i++)
-        {
-            Item item = toDoList.get(i);
-
-            if (item instanceof Note)
-            {
-                results.add((Note)item);
-            }
-        }
-
-        return results;
-    }
-
-    /**
-     * Searches titles and text for a keyword.
-     *
-     * @param keyword search term
-     * @return matching items
-     */
-    public List<Item> search(String keyword)
-    {
-        List<Item> results = new ArrayList<Item>();
-
-        if (keyword == null || keyword.trim().isEmpty())
-        {
-            return results;
-        }
-
-        String query = keyword.trim().toLowerCase();
-
-        for (int i = 0; i < toDoList.size(); i++)
-        {
-            Item item = toDoList.get(i);
-
-            String title = item.getTitle();
-            String text = item.getText();
-
-            boolean titleMatch = title != null
-                && title.toLowerCase().contains(query);
-            boolean textMatch = text != null
-                && text.toLowerCase().contains(query);
-
-            if (titleMatch || textMatch)
-            {
-                results.add(item);
-            }
-        }
-
-        return results;
-    }
-
-    /**
-     * Returns incomplete assignments.
-     *
-     * @return incomplete assignments
-     */
-    public List<Assignment> overdueAssignments()
-    {
-        List<Assignment> results = new ArrayList<Assignment>();
-
-        for (Assignment assignment : getAssignments())
-        {
-            if (!assignment.isCompleted())
-            {
-                results.add(assignment);
-            }
-        }
-
-        return results;
-    }
-
-    /**
-     * Gets the total number of items.
-     *
-     * @return item count
-     */
-    public int size()
-    {
-        return toDoList.size();
-    }
-
-    /**
-     * Counts assignments.
-     *
-     * @return assignment count
-     */
-    public int countAssignments()
-    {
-        return getAssignments().size();
-    }
-
-    /**
-     * Counts notes.
-     *
-     * @return note count
-     */
-    public int countNotes()
-    {
-        return getNotes().size();
-    }
-
-    /**
-     * Saves items to a text file.
-     */
-    public void save()
-    {
-        try (PrintWriter writer =
-            new PrintWriter(new FileWriter("tasktrack.txt")))
-        {
-            for (int i = 0; i < toDoList.size(); i++)
-            {
-                Item item = toDoList.get(i);
-                writer.println(item.getId() + " | "
-                    + item.getTitle() + " | " + item.getText());
-            }
-        }
-        catch (IOException e)
-        {
-            throw new IllegalStateException(
-                "Could not save TaskTrack data", e);
-        }
+    public void save(String filename) {
+        if (filename == null || filename.trim().isEmpty())
+            throw new IllegalArgumentException("Filename cannot be empty");
+        List<String> lines = new ArrayList<String>();
+        for (Item value : getAllItems()) lines.add(value.toString());
+        try { Files.write(Path.of(filename), lines, StandardCharsets.UTF_8); }
+        catch (IOException e) { throw new IllegalStateException("Could not save data", e); }
     }
 }
-

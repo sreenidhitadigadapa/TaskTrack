@@ -1,5 +1,3 @@
-package tracker;
-
 /**
  * A generic chain of linked nodes. Use it as the storage inside your
  * own classes, and extend or modify it as your project needs.
@@ -13,17 +11,17 @@ package tracker;
  * addToEnd() preserves insertion order.
  *
  * Time complexity, where n is the number of entries:
- * add O(1)
- * addToEnd O(n)
- * remove() O(1)
- * remove(T) O(n)
- * clear O(1)
- * get O(n)
- * contains O(n)
- * count O(n)
- * size O(1)
- * isEmpty O(1)
- * toArray O(n)
+ *   add              O(1)
+ *   addToEnd         O(n)
+ *   remove()         O(1)
+ *   remove(T)        O(n)
+ *   clear            O(1)
+ *   get              O(n)
+ *   contains         O(n)
+ *   count            O(n)
+ *   size             O(1)
+ *   isEmpty          O(1)
+ *   toArray          O(n)
  *
  * @author CS 2114 Staff
  * @version September 2026
@@ -32,8 +30,8 @@ package tracker;
  */
 public class LinkedChain<T>
 {
-    private Node<T> firstNode;
-    private int numberOfEntries;
+    private Node<T> firstNode;   // reference to the first node, or null
+    private int numberOfEntries; // number of nodes in the chain
 
     /**
      * Creates an empty chain.
@@ -70,7 +68,6 @@ public class LinkedChain<T>
     {
         requireNonNull(newEntry);
         Node<T> newNode = new Node<T>(newEntry);
-
         if (firstNode == null)
         {
             firstNode = newNode;
@@ -84,7 +81,6 @@ public class LinkedChain<T>
             }
             current.next = newNode;
         }
-
         numberOfEntries++;
         return true;
     }
@@ -100,7 +96,6 @@ public class LinkedChain<T>
         {
             return null;
         }
-
         T result = firstNode.data;
         firstNode = firstNode.next;
         numberOfEntries--;
@@ -119,17 +114,14 @@ public class LinkedChain<T>
         {
             return false;
         }
-
         if (anEntry.equals(firstNode.data))
         {
             firstNode = firstNode.next;
             numberOfEntries--;
             return true;
         }
-
         Node<T> previous = firstNode;
         Node<T> current = firstNode.next;
-
         while (current != null)
         {
             if (anEntry.equals(current.data))
@@ -138,11 +130,9 @@ public class LinkedChain<T>
                 numberOfEntries--;
                 return true;
             }
-
             previous = current;
             current = current.next;
         }
-
         return false;
     }
 
@@ -161,7 +151,7 @@ public class LinkedChain<T>
      * @param index the zero-based position
      * @return the entry at that position
      * @throws IndexOutOfBoundsException if index is negative or
-     * index is greater than or equal to size()
+     *         index is greater than or equal to size()
      */
     public T get(int index)
     {
@@ -169,16 +159,13 @@ public class LinkedChain<T>
         {
             throw new IndexOutOfBoundsException(
                 "Index " + index + " out of bounds for size "
-                    + numberOfEntries);
+                + numberOfEntries);
         }
-
         Node<T> current = firstNode;
-
         for (int i = 0; i < index; i++)
         {
             current = current.next;
         }
-
         return current.data;
     }
 
@@ -205,10 +192,8 @@ public class LinkedChain<T>
         {
             return 0;
         }
-
         int frequency = 0;
         Node<T> current = firstNode;
-
         while (current != null)
         {
             if (anEntry.equals(current.data))
@@ -217,7 +202,6 @@ public class LinkedChain<T>
             }
             current = current.next;
         }
-
         return frequency;
     }
 
@@ -246,7 +230,7 @@ public class LinkedChain<T>
      * first.
      *
      * @param values an array of the correct type to fill; it must have
-     * length at least size()
+     *               length at least size()
      * @return the array containing all entries in the chain
      * @throws IllegalArgumentException if values is null or too small
      */
@@ -256,24 +240,20 @@ public class LinkedChain<T>
         {
             throw new IllegalArgumentException("Array must not be null");
         }
-
         if (values.length < numberOfEntries)
         {
             throw new IllegalArgumentException(
                 "Array of length " + values.length
-                    + " is too small for " + numberOfEntries + " entries");
+                + " is too small for " + numberOfEntries + " entries");
         }
-
         int index = 0;
         Node<T> current = firstNode;
-
         while (current != null)
         {
             values[index] = current.data;
             index++;
             current = current.next;
         }
-
         return values;
     }
 
@@ -288,19 +268,15 @@ public class LinkedChain<T>
     {
         StringBuilder sb = new StringBuilder("[");
         Node<T> current = firstNode;
-
         while (current != null)
         {
             sb.append(current.data);
-
             if (current.next != null)
             {
                 sb.append(", ");
             }
-
             current = current.next;
         }
-
         sb.append("]");
         return sb.toString();
     }
@@ -326,8 +302,8 @@ public class LinkedChain<T>
      */
     private static class Node<E>
     {
-        private E data;
-        private Node<E> next;
+        private E data;        // entry stored in this node
+        private Node<E> next;  // link to the next node, or null
 
         /**
          * Creates a node with the given data and no next node.
