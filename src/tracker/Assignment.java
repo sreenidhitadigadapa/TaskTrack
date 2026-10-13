@@ -161,22 +161,6 @@ public class Assignment implements Item {
         dueDate = newDueDate;
         course = newCourse;
     }
-<<<<<<< HEAD
-    
-    // ----------------------------------------------------------
-    /**
-     * Returns a human-readable representation of the assignment.
-     *
-     * @return summary string
-     */
-    @Override
-    public String toString() {
-        String status = completed ? "[COMPLETED]" : "[PENDING]";
-        return title + " (" + course + ") - Due: " + dueDate 
-            + " " + status + "\n  Details: " + text;
-=======
-
-
     // ----------------------------------------------------------
     /**
      * Returns a readable description of the assignment.
@@ -191,6 +175,5 @@ public class Assignment implements Item {
             + " | Course: " + course
             + " | Due: " + dueDate
             + " | Completed: " + completed;
->>>>>>> 5cc8b973c32a24b28d1377904d8447e55da7ce5b
     }
 }
