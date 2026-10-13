@@ -140,8 +140,11 @@ public class MainMenu {
         String className = readLine("Class Name: ");
         if (className == null) return;
 
-        manager.createAssignment(title, text, dueDate, className);
+        Assignment assignment =
+            manager.createAssignment(title, text, dueDate, className);
+
         System.out.println("Assignment added successfully!");
+        System.out.println("Assignment ID: " + assignment.getId());
     }
 
 
