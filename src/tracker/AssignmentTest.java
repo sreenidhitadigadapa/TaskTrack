@@ -3,10 +3,13 @@ package tracker;
 
 import student.TestCase;
 
+//-------------------------------------------------------------------------
 /**
- * Tests the Assignment class.
- *
- */
+* Tests assignment class.
+*
+* @author zaraaomerr
+* @version 13 Oct 2026
+*/
 public class AssignmentTest extends TestCase {
 
     private Assignment assignment;

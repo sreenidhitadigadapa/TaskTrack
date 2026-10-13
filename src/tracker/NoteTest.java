@@ -3,10 +3,13 @@ package tracker;
 
 import student.TestCase;
 
+//-------------------------------------------------------------------------
 /**
- * Tests the Note class.
- *
- */
+* Tests note class.
+*
+* @author zaraaomerr
+* @version 13 Oct 2026
+*/
 public class NoteTest extends TestCase {
 
     private Note note;
