@@ -91,8 +91,8 @@ We will implement and test each feature individually before integrating it into 
 ### Stretch Goals
 
 - **Completed:** Overdue assignment detection, including displaying overdue assignments through the console menu.
-- **Not completed yet:** Course filtering, assignment priority levels, course workload summary, and weekly schedule view.
-- **Not currently planned:** Recurring assignments.
+- **Not completed yet:** Course filtering and assignment priority levels.
+- **Not currently planned:** Recurring assignments, weekly schedule view, and course workload summary.
 
 We will prioritize completing the remaining MVP features before implementing additional stretch goals.
 
