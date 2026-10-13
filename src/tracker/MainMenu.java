@@ -49,21 +49,27 @@ public class MainMenu {
     // ----------------------------------------------------------
     /**
      * Shows the menu until the user quits.
+     * Handles invalid input without ending the program.
      */
     public void run() {
         System.out.println("===== Welcome to TaskTrack =====");
 
         boolean running = true;
+
         while (running) {
             printMenu();
             String choice = readLine("Choose an option: ");
 
-            // No more input, stop instead of crashing
             if (choice == null) {
                 return;
             }
 
-            running = handleChoice(choice);
+            try {
+                running = handleChoice(choice);
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
     }
 
