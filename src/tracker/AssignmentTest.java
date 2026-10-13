@@ -3,17 +3,23 @@ package tracker;
 
 import student.TestCase;
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 /**
-* Tests assignment class.
-*
-* @author zaraaomerr
-* @version 13 Oct 2026
-*/
+ * Tests the Assignment class and its public methods.
+ *
+ * @author zaraaomerr
+ * @version 13 Oct 2026
+ */
 public class AssignmentTest extends TestCase {
+
+    //~ Fields ................................................................
 
     private Assignment assignment;
 
+
+    //~ Public Methods ........................................................
+
+    // ----------------------------------------------------------
     /**
      * Creates an assignment before each test.
      */
@@ -26,6 +32,8 @@ public class AssignmentTest extends TestCase {
             "CS 2114");
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests the constructor and getter methods.
      */
@@ -41,6 +49,23 @@ public class AssignmentTest extends TestCase {
         assertEquals("CS 2114", assignment.getCourse());
     }
 
+
+    // ----------------------------------------------------------
+    /**
+     * Tests that Assignment implements Item correctly.
+     */
+    public void testItemInterface() {
+        Item item = assignment;
+
+        assertEquals(1, item.getId());
+        assertEquals("Homework 1", item.getTitle());
+        assertEquals(
+            "Complete Java exercises",
+            item.getText());
+    }
+
+
+    // ----------------------------------------------------------
     /**
      * Tests that an assignment starts incomplete.
      */
@@ -48,23 +73,31 @@ public class AssignmentTest extends TestCase {
         assertFalse(assignment.isCompleted());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests marking an assignment as complete.
      */
     public void testMarkComplete() {
         assignment.markComplete();
+
         assertTrue(assignment.isCompleted());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests marking an assignment complete twice.
      */
     public void testMarkCompleteTwice() {
         assignment.markComplete();
         assignment.markComplete();
+
         assertTrue(assignment.isCompleted());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests updating assignment information.
      */
@@ -86,6 +119,8 @@ public class AssignmentTest extends TestCase {
         assertEquals(1, assignment.getId());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests keeping completion status after an update.
      */
@@ -99,8 +134,11 @@ public class AssignmentTest extends TestCase {
             "CS 2114");
 
         assertTrue(assignment.isCompleted());
+        assertEquals(1, assignment.getId());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting an empty title.
      */
@@ -109,6 +147,7 @@ public class AssignmentTest extends TestCase {
             new Assignment(
                 2, "", "Description",
                 "2026-10-20", "CS 2114");
+
             fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
@@ -116,6 +155,8 @@ public class AssignmentTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting a null title.
      */
@@ -124,6 +165,7 @@ public class AssignmentTest extends TestCase {
             new Assignment(
                 2, null, "Description",
                 "2026-10-20", "CS 2114");
+
             fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
@@ -131,14 +173,17 @@ public class AssignmentTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
-     * Tests rejecting a title with only spaces.
+     * Tests rejecting a title containing only spaces.
      */
     public void testBlankTitle() {
         try {
             new Assignment(
                 2, "   ", "Description",
                 "2026-10-20", "CS 2114");
+
             fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
@@ -146,6 +191,8 @@ public class AssignmentTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting an empty title during update.
      */
@@ -153,15 +200,63 @@ public class AssignmentTest extends TestCase {
         try {
             assignment.update(
                 "", "New text", "2026-10-25", "CS 2114");
+
             fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
+            assertEquals("Homework 1", assignment.getTitle());
             assertEquals(
-                "Homework 1",
-                assignment.getTitle());
+                "Complete Java exercises",
+                assignment.getText());
+            assertEquals(
+                "2026-10-20",
+                assignment.getDueDate());
+            assertEquals("CS 2114", assignment.getCourse());
         }
     }
 
+
+    // ----------------------------------------------------------
+    /**
+     * Tests rejecting a null title during update.
+     */
+    public void testUpdateNullTitle() {
+        try {
+            assignment.update(
+                null, "New text", "2026-10-25", "CS 2114");
+
+            fail("Expected an IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e) {
+            assertEquals("Homework 1", assignment.getTitle());
+            assertEquals(
+                "Complete Java exercises",
+                assignment.getText());
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests rejecting a blank title during update.
+     */
+    public void testUpdateBlankTitle() {
+        try {
+            assignment.update(
+                "   ", "New text", "2026-10-25", "CS 2114");
+
+            fail("Expected an IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e) {
+            assertEquals("Homework 1", assignment.getTitle());
+            assertEquals(
+                "2026-10-20",
+                assignment.getDueDate());
+        }
+    }
+
+
+    // ----------------------------------------------------------
     /**
      * Tests allowing assignments with the same title.
      */
@@ -177,5 +272,63 @@ public class AssignmentTest extends TestCase {
             assignment.getTitle(),
             another.getTitle());
         assertFalse(assignment.getId() == another.getId());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests the string representation of an assignment.
+     */
+    public void testToString() {
+        String expected = "ID: 1"
+            + " | Title: Homework 1"
+            + " | Description: Complete Java exercises"
+            + " | Course: CS 2114"
+            + " | Due: 2026-10-20"
+            + " | Completed: false";
+
+        assertEquals(expected, assignment.toString());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests that completing an assignment updates its
+     * string representation.
+     */
+    public void testToStringAfterCompletion() {
+        assignment.markComplete();
+
+        String expected = "ID: 1"
+            + " | Title: Homework 1"
+            + " | Description: Complete Java exercises"
+            + " | Course: CS 2114"
+            + " | Due: 2026-10-20"
+            + " | Completed: true";
+
+        assertEquals(expected, assignment.toString());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests that updating an assignment changes its
+     * string representation.
+     */
+    public void testToStringAfterUpdate() {
+        assignment.update(
+            "Project 2",
+            "Finish linked chain",
+            "2026-10-25",
+            "CS 2114");
+
+        String expected = "ID: 1"
+            + " | Title: Project 2"
+            + " | Description: Finish linked chain"
+            + " | Course: CS 2114"
+            + " | Due: 2026-10-25"
+            + " | Completed: false";
+
+        assertEquals(expected, assignment.toString());
     }
 }

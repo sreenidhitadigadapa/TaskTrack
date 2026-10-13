@@ -27,7 +27,7 @@ public class Note implements Item {
      * @param id note ID
      * @param title note title
      * @param text note content
-     * @throws IllegalArgumentException if title or text is empty
+     * @throws IllegalArgumentException if title or text is null or blank
      */
     public Note(int id, String title, String text) {
 
@@ -91,7 +91,7 @@ public class Note implements Item {
      *
      * @param newTitle updated title
      * @param newText updated text
-     * @throws IllegalArgumentException if title or text is empty
+     * @throws IllegalArgumentException if title or text is null or blank
      */
     public void update(String newTitle, String newText) {
 

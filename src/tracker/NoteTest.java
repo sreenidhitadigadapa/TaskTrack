@@ -3,17 +3,23 @@ package tracker;
 
 import student.TestCase;
 
-//-------------------------------------------------------------------------
+// -------------------------------------------------------------------------
 /**
-* Tests note class.
-*
-* @author zaraaomerr
-* @version 13 Oct 2026
-*/
+ * Tests the Note class and its public methods.
+ *
+ * @author zaraaomerr
+ * @version 13 Oct 2026
+ */
 public class NoteTest extends TestCase {
+
+    //~ Fields ................................................................
 
     private Note note;
 
+
+    //~ Public Methods ........................................................
+
+    // ----------------------------------------------------------
     /**
      * Creates a note before each test.
      */
@@ -24,6 +30,8 @@ public class NoteTest extends TestCase {
             "Study for ECE exam");
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests the constructor and getters.
      */
@@ -35,6 +43,8 @@ public class NoteTest extends TestCase {
             note.getText());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests that Note implements Item correctly.
      */
@@ -48,6 +58,8 @@ public class NoteTest extends TestCase {
             item.getText());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests updating a note.
      */
@@ -63,6 +75,8 @@ public class NoteTest extends TestCase {
         assertEquals(1, note.getId());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests multiple updates.
      */
@@ -76,6 +90,8 @@ public class NoteTest extends TestCase {
             note.getText());
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting an empty title.
      */
@@ -89,6 +105,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting a null title.
      */
@@ -102,6 +120,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting a title containing only spaces.
      */
@@ -115,6 +135,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting empty note text.
      */
@@ -128,6 +150,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting null note text.
      */
@@ -141,6 +165,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting text containing only spaces.
      */
@@ -154,6 +180,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting an empty title during update.
      */
@@ -170,6 +198,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting a null title during update.
      */
@@ -186,6 +216,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting a blank title during update.
      */
@@ -202,6 +234,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting empty text during update.
      */
@@ -218,6 +252,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting null text during update.
      */
@@ -234,6 +270,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests rejecting blank text during update.
      */
@@ -250,6 +288,8 @@ public class NoteTest extends TestCase {
         }
     }
 
+
+    // ----------------------------------------------------------
     /**
      * Tests allowing notes with identical content.
      */
@@ -263,5 +303,34 @@ public class NoteTest extends TestCase {
         assertEquals(note.getText(), another.getText());
         assertFalse(note.getId() == another.getId());
     }
-}
 
+
+    // ----------------------------------------------------------
+    /**
+     * Tests the string representation of a note.
+     */
+    public void testToString() {
+        String expected = "ID: 1"
+            + " | Title: Exam Notes"
+            + " | Text: Study for ECE exam";
+
+        assertEquals(expected, note.toString());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests that updating a note changes its string output.
+     */
+    public void testToStringAfterUpdate() {
+        note.update(
+            "Updated Notes",
+            "Review linked lists");
+
+        String expected = "ID: 1"
+            + " | Title: Updated Notes"
+            + " | Text: Review linked lists";
+
+        assertEquals(expected, note.toString());
+    }
+}

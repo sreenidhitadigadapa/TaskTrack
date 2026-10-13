@@ -39,8 +39,11 @@ public class TrackerManagerTest extends TestCase {
             "Homework", "Chapter 3", "2026-10-20", "CS2114");
 
         assertNotNull(assignment);
+        assertEquals(1, assignment.getId());
+        assertEquals("Homework", assignment.getTitle());
         assertEquals(1, manager.size());
         assertEquals(1, manager.countAssignments());
+        assertFalse(manager.isEmpty());
     }
 
 
@@ -81,6 +84,23 @@ public class TrackerManagerTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
+     * Tests rejecting a null assignment title.
+     */
+    public void testNullAssignmentTitle() {
+        try {
+            manager.createAssignment(
+                null, "Homework", "2026-10-20", "CS2114");
+
+            fail("Expected IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e) {
+            assertTrue(manager.isEmpty());
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
      * Tests creating a valid note.
      */
     public void testCreateNote() {
@@ -88,6 +108,8 @@ public class TrackerManagerTest extends TestCase {
             "Lecture Notes", "Linked lists");
 
         assertNotNull(note);
+        assertEquals(1, note.getId());
+        assertEquals("Lecture Notes", note.getTitle());
         assertEquals(1, manager.size());
         assertEquals(1, manager.countNotes());
     }
@@ -111,6 +133,22 @@ public class TrackerManagerTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
+     * Tests rejecting a null note title.
+     */
+    public void testNullNoteTitle() {
+        try {
+            manager.createNote(null, "Lecture content");
+
+            fail("Expected IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e) {
+            assertTrue(manager.isEmpty());
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
      * Tests finding an assignment using its ID.
      */
     public void testFindById() {
@@ -126,12 +164,29 @@ public class TrackerManagerTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests finding a nonexistent item.
+     * Tests finding a note using its ID.
+     */
+    public void testFindNoteById() {
+        Note note = manager.createNote(
+            "Notes", "Lecture content");
+
+        Item found = manager.findById(
+            String.valueOf(note.getId()));
+
+        assertEquals(note, found);
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests finding a nonexistent or invalid item ID.
      */
     public void testFindMissingId() {
         assertNull(manager.findById("999"));
         assertNull(manager.findById("abc"));
         assertNull(manager.findById(null));
+        assertNull(manager.findById(""));
+        assertNull(manager.findById(" "));
     }
 
 
@@ -158,6 +213,7 @@ public class TrackerManagerTest extends TestCase {
     public void testCompleteMissingAssignment() {
         assertFalse(manager.completeAssignment("999"));
         assertFalse(manager.completeAssignment("abc"));
+        assertFalse(manager.completeAssignment(null));
     }
 
 
@@ -171,6 +227,59 @@ public class TrackerManagerTest extends TestCase {
 
         assertFalse(manager.completeAssignment(
             String.valueOf(note.getId())));
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests retrieving all stored items.
+     */
+    public void testGetAllItems() {
+        Assignment assignment = manager.createAssignment(
+            "Homework", "Finish project",
+            "2026-10-20", "CS2114");
+
+        Note note = manager.createNote(
+            "Study Notes", "Review linked lists");
+
+        List<Item> allItems = manager.getAllItems();
+
+        assertEquals(2, allItems.size());
+        assertEquals(assignment, allItems.get(0));
+        assertEquals(note, allItems.get(1));
+        assertTrue(allItems.get(0) instanceof Assignment);
+        assertTrue(allItems.get(1) instanceof Note);
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests retrieving items from an empty manager.
+     */
+    public void testGetAllItemsEmpty() {
+        List<Item> allItems = manager.getAllItems();
+
+        assertNotNull(allItems);
+        assertTrue(allItems.isEmpty());
+        assertEquals(0, allItems.size());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests that modifying the returned list does not
+     * remove items from the manager.
+     */
+    public void testGetAllItemsSeparateList() {
+        manager.createNote(
+            "Notes", "Lecture content");
+
+        List<Item> allItems = manager.getAllItems();
+
+        allItems.clear();
+
+        assertEquals(1, manager.size());
+        assertEquals(0, allItems.size());
     }
 
 
@@ -216,6 +325,23 @@ public class TrackerManagerTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
+     * Tests that an assignment due today is not overdue.
+     */
+    public void testDueTodayNotOverdue() {
+        manager.createAssignment(
+            "Today's Homework", "Finish",
+            "2026-10-13", "CS2114");
+
+        List<Assignment> overdue =
+            manager.overdueAssignments(
+                LocalDate.of(2026, 10, 13));
+
+        assertTrue(overdue.isEmpty());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
      * Tests overdue detection with an empty collection.
      */
     public void testOverdueEmptyCollection() {
@@ -230,7 +356,7 @@ public class TrackerManagerTest extends TestCase {
      */
     public void testNullComparisonDate() {
         try {
-            manager.overdueAssignments(null);
+            manager.overdueAssignments((LocalDate)null);
 
             fail("Expected IllegalArgumentException");
         }
@@ -280,5 +406,25 @@ public class TrackerManagerTest extends TestCase {
 
         assertTrue(manager.isEmpty());
         assertEquals(0, manager.size());
+        assertTrue(manager.getAllItems().isEmpty());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests that IDs remain unique after clearing items.
+     */
+    public void testIdsAfterClear() {
+        Note first = manager.createNote(
+            "First Note", "First content");
+
+        manager.clear();
+
+        Note second = manager.createNote(
+            "Second Note", "Second content");
+
+        assertEquals(1, first.getId());
+        assertEquals(2, second.getId());
+        assertEquals(1, manager.size());
     }
 }

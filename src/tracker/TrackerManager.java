@@ -164,17 +164,26 @@ public class TrackerManager {
 
         return true;
     }
-    
+
+
     // ----------------------------------------------------------
     /**
-     * Gets all the items in the list.
-     * @return items
+     * Returns all stored assignments and notes.
+     *
+     * The returned list is a separate collection, so changing
+     * the list does not change the manager's LinkedChain.
+     *
+     * @return a list of all stored items
      */
     public List<Item> getAllItems() {
         List<Item> result = new ArrayList<Item>();
-        for (int i = 0; i < items.size(); i++) result.add(items.get(i));
-        return result;
+
+        for (int i = 0; i < items.size(); i++) {
+            result.add(items.get(i));
         }
+
+        return result;
+    }
 
 
     // ----------------------------------------------------------
@@ -182,15 +191,14 @@ public class TrackerManager {
      * Returns all incomplete assignments with due dates
      * earlier than the specified date.
      *
-     * This helper also makes overdue detection testable
+     * This method also makes overdue detection testable
      * without depending on the computer's current date.
      *
      * @param today the date used for comparison
      * @return a list of overdue assignments
      * @throws IllegalArgumentException if today is null
      */
-    public List<Assignment> overdueAssignments(
-        LocalDate today) {
+    public List<Assignment> overdueAssignments(LocalDate today) {
 
         if (today == null) {
             throw new IllegalArgumentException(
@@ -230,7 +238,7 @@ public class TrackerManager {
     /**
      * Finds assignments that are overdue as of today.
      *
-     * This method is called by Miguel's MainMenu.
+     * This method is called by MainMenu.
      *
      * @return all incomplete assignments due before today
      */

@@ -32,7 +32,7 @@ public class Assignment implements Item {
      * @param text assignment description
      * @param dueDate assignment due date
      * @param course course name
-     * @throws IllegalArgumentException if the title is empty
+     * @throws IllegalArgumentException if the title is null or blank
      */
     public Assignment(
         int id,
@@ -139,11 +139,13 @@ public class Assignment implements Item {
     /**
      * Updates the assignment information.
      *
+     * The assignment ID and completion status remain unchanged.
+     *
      * @param newTitle updated title
      * @param newText updated description
      * @param newDueDate updated due date
      * @param newCourse updated course
-     * @throws IllegalArgumentException if the new title is empty
+     * @throws IllegalArgumentException if the new title is null or blank
      */
     public void update(
         String newTitle,
@@ -161,6 +163,8 @@ public class Assignment implements Item {
         dueDate = newDueDate;
         course = newCourse;
     }
+
+
     // ----------------------------------------------------------
     /**
      * Returns a readable description of the assignment.

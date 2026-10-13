@@ -1,7 +1,7 @@
+
 package tracker;
 
 import java.util.Scanner;
-import java.util.ArrayList;
 import java.util.List;
 
 // -------------------------------------------------------------------------
@@ -10,7 +10,7 @@ import java.util.List;
  * objects into one program.
  *
  * @author miguel33
- * @version 11 Oct 2026
+ * @version 13 Oct 2026
  */
 public class MainMenu {
 
@@ -24,9 +24,9 @@ public class MainMenu {
 
     // ----------------------------------------------------------
     /**
-     * Creates a MainMenu that reads the user's typing from the given Scanner.
+     * Creates a MainMenu that reads user input from the given Scanner.
      *
-     * @param input where the user's typing comes from
+     * @param input where the user's input comes from
      */
     public MainMenu(Scanner input) {
         this.input = input;
@@ -40,7 +40,7 @@ public class MainMenu {
     /**
      * Starts the program.
      *
-     * @param args not used
+     * @param args command-line arguments (not used)
      */
     public static void main(String[] args) {
         MainMenu menu = new MainMenu(new Scanner(System.in));
@@ -80,10 +80,10 @@ public class MainMenu {
 
     // ----------------------------------------------------------
     /**
-     * Runs the menu option the user picked.
+     * Runs the menu option selected by the user.
      *
-     * @param choice what the user typed
-     * @return false when the user wants to quit
+     * @param choice the user's menu selection
+     * @return false if the user chooses to quit, true otherwise
      */
     private boolean handleChoice(String choice) {
         if (choice.equals("1")) {
@@ -98,6 +98,9 @@ public class MainMenu {
         else if (choice.equals("4")) {
             showList();
         }
+        else if (choice.equals("5")) {
+            handleViewOverdue();
+        }
         else if (choice.equals("0")) {
             System.out.println("Goodbye!");
             return false;
@@ -106,6 +109,7 @@ public class MainMenu {
             System.out.println("\"" + choice + "\" is not an option. "
                 + "Please select a number from the menu.");
         }
+
         return true;
     }
 
@@ -120,7 +124,8 @@ public class MainMenu {
         System.out.println(" 1. Add Assignment");
         System.out.println(" 2. Add Note");
         System.out.println(" 3. Complete Assignment");
-        System.out.println(" 4. Show all items");
+        System.out.println(" 4. Show All Items");
+        System.out.println(" 5. View Overdue Assignments");
         System.out.println(" 0. Quit");
     }
 
@@ -131,16 +136,24 @@ public class MainMenu {
      */
     private void handleAddAssignment() {
         String title = readLine("Title: ");
-        if (title == null) return;
+        if (title == null) {
+            return;
+        }
 
         String text = readLine("Description: ");
-        if (text == null) return;
+        if (text == null) {
+            return;
+        }
 
         String dueDate = readLine("Due Date (YYYY-MM-DD): ");
-        if (dueDate == null) return;
+        if (dueDate == null) {
+            return;
+        }
 
         String className = readLine("Class Name: ");
-        if (className == null) return;
+        if (className == null) {
+            return;
+        }
 
         Assignment assignment =
             manager.createAssignment(title, text, dueDate, className);
@@ -156,13 +169,19 @@ public class MainMenu {
      */
     private void handleAddNote() {
         String title = readLine("Title: ");
-        if (title == null) return;
+        if (title == null) {
+            return;
+        }
 
         String text = readLine("Text: ");
-        if (text == null) return;
+        if (text == null) {
+            return;
+        }
 
-        manager.createNote(title, text);
+        Note note = manager.createNote(title, text);
+
         System.out.println("Note added successfully!");
+        System.out.println("Note ID: " + note.getId());
     }
 
 
@@ -172,45 +191,32 @@ public class MainMenu {
      */
     private void handleCompleteAssignment() {
         String id = readLine("Enter Assignment ID to mark complete: ");
-        if (id == null) return;
+        if (id == null) {
+            return;
+        }
 
         boolean success = manager.completeAssignment(id);
+
         if (success) {
             System.out.println("Assignment marked as completed.");
         }
         else {
-            System.out.println("Assignment ID not found.");
+            System.out.println("Assignment ID not found "
+                + "or does not belong to an assignment.");
         }
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Shows a prompt and reads one line.
-     *
-     * @param prompt the question to show
-     * @return the line, or null if there is no more input
-     */
-    private String readLine(String prompt) {
-        System.out.print(prompt);
-
-        if (!input.hasNextLine()) {
-            System.out.println();
-            return null;
-        }
-        return cleanInput(input.nextLine());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Displays all items currently in the tracker.
+     * Displays all assignments and notes currently in the tracker.
      */
     private void showList() {
         System.out.println("\n--- All Tracker Items ---");
+
         List<Item> itemList = manager.getAllItems();
 
-        if (itemList == null || itemList.isEmpty()) {
+        if (itemList.isEmpty()) {
             System.out.println("No items in the tracker.");
             return;
         }
@@ -220,29 +226,72 @@ public class MainMenu {
             System.out.println("  " + (i + 1) + ". " + item);
         }
     }
-    
-    
+
+
+    // ----------------------------------------------------------
+    /**
+     * Displays all incomplete assignments with overdue dates.
+     */
+    private void handleViewOverdue() {
+        System.out.println("\n--- Overdue Assignments ---");
+
+        List<Assignment> overdue = manager.overdueAssignments();
+
+        if (overdue.isEmpty()) {
+            System.out.println("No overdue assignments.");
+            return;
+        }
+
+        for (Assignment assignment : overdue) {
+            System.out.println("  " + assignment);
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Shows a prompt and reads one line of input.
+     *
+     * @param prompt the question to display
+     * @return the cleaned input, or null if input has ended
+     */
+    private String readLine(String prompt) {
+        System.out.print(prompt);
+
+        if (!input.hasNextLine()) {
+            System.out.println();
+            return null;
+        }
+
+        return cleanInput(input.nextLine());
+    }
+
+
     // ----------------------------------------------------------
     /**
      * Cleans hidden character input artifacts.
      *
-     * @param text the line typed
-     * @return cleaned text
+     * @param text the line entered by the user
+     * @return the cleaned text
      */
     private String cleanInput(String text) {
         String cleaned = "";
+
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
+
             if (Character.isDigit(c)) {
                 cleaned = cleaned + Character.getNumericValue(c);
             }
-            else if (Character.isSpaceChar(c) || Character.isWhitespace(c)) {
+            else if (Character.isSpaceChar(c)
+                || Character.isWhitespace(c)) {
                 cleaned = cleaned + " ";
             }
             else if (Character.getType(c) != Character.FORMAT) {
                 cleaned = cleaned + c;
             }
         }
+
         return cleaned.trim();
     }
 }
