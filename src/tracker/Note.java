@@ -5,7 +5,6 @@ package tracker;
  * Represents a note in TaskTrack.
  * Stores the note's ID, title, and text.
  *
- * 
  */
 public class Note implements Item {
 
@@ -21,6 +20,11 @@ public class Note implements Item {
      * @param text note content
      */
     public Note(int id, String title, String text) {
+
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Note title cannot be empty.");
+        }
 
         if (text == null || text.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -67,6 +71,12 @@ public class Note implements Item {
      */
     public void update(String newTitle, String newText) {
 
+        if (newTitle == null
+            || newTitle.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                "Note title cannot be empty.");
+        }
+
         if (newText == null
             || newText.trim().isEmpty()) {
             throw new IllegalArgumentException(
@@ -77,3 +87,4 @@ public class Note implements Item {
         text = newText;
     }
 }
+
