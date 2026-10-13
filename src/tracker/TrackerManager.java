@@ -164,6 +164,17 @@ public class TrackerManager {
 
         return true;
     }
+    
+    // ----------------------------------------------------------
+    /**
+     * Gets all the items in the list.
+     * @return items
+     */
+    public List<Item> getAllItems() {
+        List<Item> result = new ArrayList<Item>();
+        for (int i = 0; i < items.size(); i++) result.add(items.get(i));
+        return result;
+        }
 
 
     // ----------------------------------------------------------
