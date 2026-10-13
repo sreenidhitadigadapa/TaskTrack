@@ -1,6 +1,8 @@
 package tracker;
 
 import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.List;
 
 // -------------------------------------------------------------------------
 /**
@@ -49,21 +51,27 @@ public class MainMenu {
     // ----------------------------------------------------------
     /**
      * Shows the menu until the user quits.
+     * Handles invalid input without ending the program.
      */
     public void run() {
         System.out.println("===== Welcome to TaskTrack =====");
 
         boolean running = true;
+
         while (running) {
             printMenu();
             String choice = readLine("Choose an option: ");
 
-            // No more input, stop instead of crashing
             if (choice == null) {
                 return;
             }
 
-            running = handleChoice(choice);
+            try {
+                running = handleChoice(choice);
+            }
+            catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
         }
     }
 
@@ -88,7 +96,7 @@ public class MainMenu {
             handleCompleteAssignment();
         }
         else if (choice.equals("4")) {
-            handleViewOverdue();
+            showList();
         }
         else if (choice.equals("0")) {
             System.out.println("Goodbye!");
@@ -112,7 +120,7 @@ public class MainMenu {
         System.out.println(" 1. Add Assignment");
         System.out.println(" 2. Add Note");
         System.out.println(" 3. Complete Assignment");
-        System.out.println(" 4. View Overdue Assignments");
+        System.out.println(" 4. Show all items");
         System.out.println(" 0. Quit");
     }
 
@@ -134,8 +142,11 @@ public class MainMenu {
         String className = readLine("Class Name: ");
         if (className == null) return;
 
-        manager.createAssignment(title, text, dueDate, className);
+        Assignment assignment =
+            manager.createAssignment(title, text, dueDate, className);
+
         System.out.println("Assignment added successfully!");
+        System.out.println("Assignment ID: " + assignment.getId());
     }
 
 
@@ -175,24 +186,6 @@ public class MainMenu {
 
     // ----------------------------------------------------------
     /**
-     * Displays all overdue assignments.
-     */
-    private void handleViewOverdue() {
-        System.out.println("\n--- Overdue Assignments ---");
-        var overdue = manager.overdueAssignments();
-        if (overdue == null || overdue.isEmpty()) {
-            System.out.println("No overdue assignments found.");
-        }
-        else {
-            for (Object item : overdue) {
-                System.out.println("  " + item);
-            }
-        }
-    }
-
-
-    // ----------------------------------------------------------
-    /**
      * Shows a prompt and reads one line.
      *
      * @param prompt the question to show
@@ -209,6 +202,26 @@ public class MainMenu {
     }
 
 
+    // ----------------------------------------------------------
+    /**
+     * Displays all items currently in the tracker.
+     */
+    private void showList() {
+        System.out.println("\n--- All Tracker Items ---");
+        List<Item> itemList = manager.getAllItems();
+
+        if (itemList == null || itemList.isEmpty()) {
+            System.out.println("No items in the tracker.");
+            return;
+        }
+
+        for (int i = 0; i < itemList.size(); i++) {
+            Item item = itemList.get(i);
+            System.out.println("  " + (i + 1) + ". " + item);
+        }
+    }
+    
+    
     // ----------------------------------------------------------
     /**
      * Cleans hidden character input artifacts.
