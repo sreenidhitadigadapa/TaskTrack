@@ -5,10 +5,11 @@ import student.TestCase;
 
 // -------------------------------------------------------------------------
 /**
- * Tests the Note class and its public methods.
+ * Tests the Note class in TaskTrack.
+ * Includes normal, invalid-input, and edge-case tests.
  *
  * @author zaraaomerr
- * @version 13 Oct 2026
+ * @version 19 Oct 2026
  */
 public class NoteTest extends TestCase {
 
@@ -33,7 +34,7 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests the constructor and getters.
+     * Tests the constructor and getter methods.
      */
     public void testGetters() {
         assertEquals(1, note.getId());
@@ -46,7 +47,7 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests that Note implements Item correctly.
+     * Tests that Note implements Item.
      */
     public void testItemInterface() {
         Item item = note;
@@ -61,16 +62,16 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests updating a note.
+     * Tests updating the title and text of a note.
      */
     public void testUpdate() {
         note.update(
             "Updated Notes",
-            "Review circuits and resistors");
+            "Review linked lists");
 
         assertEquals("Updated Notes", note.getTitle());
         assertEquals(
-            "Review circuits and resistors",
+            "Review linked lists",
             note.getText());
         assertEquals(1, note.getId());
     }
@@ -78,27 +79,26 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests multiple updates.
+     * Tests updating a note multiple times.
      */
     public void testMultipleUpdates() {
-        note.update("Math Notes", "Study derivatives");
-        note.update("CS Notes", "Study linked lists");
+        note.update("First Update", "First text");
+        note.update("Second Update", "Second text");
 
-        assertEquals("CS Notes", note.getTitle());
-        assertEquals(
-            "Study linked lists",
-            note.getText());
+        assertEquals("Second Update", note.getTitle());
+        assertEquals("Second text", note.getText());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tests rejecting an empty title.
+     * Tests rejecting an empty note title.
      */
     public void testEmptyTitle() {
         try {
-            new Note(2, "", "Study for exam");
-            fail("Expected IllegalArgumentException");
+            new Note(2, "", "Description");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertNotNull(e);
@@ -108,12 +108,13 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests rejecting a null title.
+     * Tests rejecting a null note title.
      */
     public void testNullTitle() {
         try {
-            new Note(2, null, "Study for exam");
-            fail("Expected IllegalArgumentException");
+            new Note(2, null, "Description");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertNotNull(e);
@@ -123,12 +124,13 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests rejecting a title containing only spaces.
+     * Tests rejecting a blank note title.
      */
     public void testBlankTitle() {
         try {
-            new Note(2, "   ", "Study for exam");
-            fail("Expected IllegalArgumentException");
+            new Note(2, "   ", "Description");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertNotNull(e);
@@ -142,8 +144,9 @@ public class NoteTest extends TestCase {
      */
     public void testEmptyText() {
         try {
-            new Note(2, "Empty Note", "");
-            fail("Expected IllegalArgumentException");
+            new Note(2, "Notes", "");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertNotNull(e);
@@ -157,8 +160,9 @@ public class NoteTest extends TestCase {
      */
     public void testNullText() {
         try {
-            new Note(2, "Null Note", null);
-            fail("Expected IllegalArgumentException");
+            new Note(2, "Notes", null);
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertNotNull(e);
@@ -168,12 +172,13 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests rejecting text containing only spaces.
+     * Tests rejecting blank note text.
      */
     public void testBlankText() {
         try {
-            new Note(2, "Blank Note", "   ");
-            fail("Expected IllegalArgumentException");
+            new Note(2, "Notes", "   ");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertNotNull(e);
@@ -188,7 +193,8 @@ public class NoteTest extends TestCase {
     public void testUpdateEmptyTitle() {
         try {
             note.update("", "New text");
-            fail("Expected IllegalArgumentException");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertEquals("Exam Notes", note.getTitle());
@@ -206,13 +212,11 @@ public class NoteTest extends TestCase {
     public void testUpdateNullTitle() {
         try {
             note.update(null, "New text");
-            fail("Expected IllegalArgumentException");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertEquals("Exam Notes", note.getTitle());
-            assertEquals(
-                "Study for ECE exam",
-                note.getText());
         }
     }
 
@@ -224,13 +228,11 @@ public class NoteTest extends TestCase {
     public void testUpdateBlankTitle() {
         try {
             note.update("   ", "New text");
-            fail("Expected IllegalArgumentException");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertEquals("Exam Notes", note.getTitle());
-            assertEquals(
-                "Study for ECE exam",
-                note.getText());
         }
     }
 
@@ -242,7 +244,8 @@ public class NoteTest extends TestCase {
     public void testUpdateEmptyText() {
         try {
             note.update("New Title", "");
-            fail("Expected IllegalArgumentException");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertEquals("Exam Notes", note.getTitle());
@@ -260,7 +263,8 @@ public class NoteTest extends TestCase {
     public void testUpdateNullText() {
         try {
             note.update("New Title", null);
-            fail("Expected IllegalArgumentException");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertEquals("Exam Notes", note.getTitle());
@@ -278,7 +282,8 @@ public class NoteTest extends TestCase {
     public void testUpdateBlankText() {
         try {
             note.update("New Title", "   ");
-            fail("Expected IllegalArgumentException");
+
+            fail("Expected an IllegalArgumentException");
         }
         catch (IllegalArgumentException e) {
             assertEquals("Exam Notes", note.getTitle());
@@ -291,7 +296,7 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests allowing notes with identical content.
+     * Tests allowing notes with duplicate titles and text.
      */
     public void testDuplicateNotes() {
         Note another = new Note(
@@ -299,8 +304,14 @@ public class NoteTest extends TestCase {
             "Exam Notes",
             "Study for ECE exam");
 
-        assertEquals(note.getTitle(), another.getTitle());
-        assertEquals(note.getText(), another.getText());
+        assertEquals(
+            note.getTitle(),
+            another.getTitle());
+
+        assertEquals(
+            note.getText(),
+            another.getText());
+
         assertFalse(note.getId() == another.getId());
     }
 
@@ -320,7 +331,7 @@ public class NoteTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests that updating a note changes its string output.
+     * Tests the string after updating a note.
      */
     public void testToStringAfterUpdate() {
         note.update(

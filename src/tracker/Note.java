@@ -4,16 +4,16 @@ package tracker;
 // -------------------------------------------------------------------------
 /**
  * Represents a note in TaskTrack.
- * Stores the note's ID, title, and text.
+ * Stores a note's ID, title, and text.
  *
  * @author zaraaomerr
- * @version 13 Oct 2026
+ * @version 19 Oct 2026
  */
 public class Note implements Item {
 
     //~ Fields ................................................................
 
-    private int id;
+    private final int id;
     private String title;
     private String text;
 
@@ -27,23 +27,11 @@ public class Note implements Item {
      * @param id note ID
      * @param title note title
      * @param text note content
-     * @throws IllegalArgumentException if title or text is null or blank
+     * @throws IllegalArgumentException if title or text is empty
      */
     public Note(int id, String title, String text) {
-
-        if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                "Note title cannot be empty.");
-        }
-
-        if (text == null || text.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                "Note text cannot be empty.");
-        }
-
         this.id = id;
-        this.title = title;
-        this.text = text;
+        update(title, text);
     }
 
 
@@ -87,11 +75,11 @@ public class Note implements Item {
 
     // ----------------------------------------------------------
     /**
-     * Updates the note's title and text.
+     * Updates the title and text of the note.
      *
-     * @param newTitle updated title
-     * @param newText updated text
-     * @throws IllegalArgumentException if title or text is null or blank
+     * @param newTitle updated note title
+     * @param newText updated note text
+     * @throws IllegalArgumentException if title or text is empty
      */
     public void update(String newTitle, String newText) {
 
@@ -105,8 +93,8 @@ public class Note implements Item {
                 "Note text cannot be empty.");
         }
 
-        title = newTitle;
-        text = newText;
+        title = newTitle.trim();
+        text = newText.trim();
     }
 
 

@@ -2,21 +2,19 @@
 package tracker;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 // -------------------------------------------------------------------------
 /**
- * Manages assignments and notes for the TaskTrack application.
- *
- * Stores both item types in the same generic LinkedChain and
- * provides methods for creating, completing, and finding items.
- *
- * Also supports overdue assignment detection as a stretch goal.
+ * Manages assignments and notes in TaskTrack.
+ * Uses a generic LinkedChain to store items.
  *
  * @author sreenidhitadigadapa
- * @version 13 Oct 2026
+ * @version 19 Oct 2026
  */
 public class TrackerManager {
 
@@ -30,7 +28,7 @@ public class TrackerManager {
 
     // ----------------------------------------------------------
     /**
-     * Creates an empty TrackerManager.
+     * Creates an empty tracker manager.
      */
     public TrackerManager() {
         items = new LinkedChain<Item>();
@@ -44,31 +42,21 @@ public class TrackerManager {
     /**
      * Creates and stores a new assignment.
      *
-     * The title must not be empty, and the due date must be
-     * a valid date in YYYY-MM-DD format.
-     *
-     * @param title the assignment title
-     * @param text the assignment description
-     * @param dueDate the assignment due date
-     * @param className the course name
-     * @return the newly created assignment
-     * @throws IllegalArgumentException if input is invalid
+     * @param title assignment title
+     * @param text assignment description
+     * @param dueDate assignment due date
+     * @param course course name
+     * @return newly created assignment
+     * @throws IllegalArgumentException if assignment data is invalid
      */
     public Assignment createAssignment(
         String title,
         String text,
         String dueDate,
-        String className) {
-
-        validateTitle(title);
-        validateDate(dueDate);
+        String course) {
 
         Assignment assignment = new Assignment(
-            nextId,
-            title.trim(),
-            clean(text),
-            dueDate.trim(),
-            clean(className));
+            nextId, title, text, dueDate, course);
 
         items.addToEnd(assignment);
         nextId++;
@@ -81,25 +69,14 @@ public class TrackerManager {
     /**
      * Creates and stores a new note.
      *
-     * Both the title and note text must contain characters.
-     *
-     * @param title the note title
-     * @param text the note contents
-     * @return the newly created note
-     * @throws IllegalArgumentException if input is invalid
+     * @param title note title
+     * @param text note content
+     * @return newly created note
+     * @throws IllegalArgumentException if note data is invalid
      */
     public Note createNote(String title, String text) {
-        validateTitle(title);
 
-        if (text == null || text.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                "Note text cannot be empty.");
-        }
-
-        Note note = new Note(
-            nextId,
-            title.trim(),
-            text.trim());
+        Note note = new Note(nextId, title, text);
 
         items.addToEnd(note);
         nextId++;
@@ -110,20 +87,21 @@ public class TrackerManager {
 
     // ----------------------------------------------------------
     /**
-     * Finds an item using its ID.
+     * Finds an item using its unique ID.
      *
-     * @param id the ID to search for
-     * @return the matching item or null if none exists
+     * @param id ID of the item to find
+     * @return matching item or null if not found
      */
     public Item findById(String id) {
-        if (id == null || id.trim().isEmpty()) {
+
+        if (id == null) {
             return null;
         }
 
-        int parsedId;
+        int number;
 
         try {
-            parsedId = Integer.parseInt(id.trim());
+            number = Integer.parseInt(id.trim());
         }
         catch (NumberFormatException e) {
             return null;
@@ -132,7 +110,7 @@ public class TrackerManager {
         for (int i = 0; i < items.size(); i++) {
             Item item = items.get(i);
 
-            if (item.getId() == parsedId) {
+            if (item.getId() == number) {
                 return item;
             }
         }
@@ -143,39 +121,131 @@ public class TrackerManager {
 
     // ----------------------------------------------------------
     /**
-     * Marks an assignment complete using its ID.
+     * Marks an assignment as complete using its ID.
      *
-     * A nonexistent ID or an ID belonging to a note
-     * does not change any stored data.
-     *
-     * @param id the assignment ID
-     * @return true if an assignment was completed;
-     *         false otherwise
+     * @param id assignment ID
+     * @return true if the assignment was found and completed
      */
     public boolean completeAssignment(String id) {
+
         Item item = findById(id);
 
         if (!(item instanceof Assignment)) {
             return false;
         }
 
-        Assignment assignment = (Assignment)item;
-        assignment.markComplete();
-
+        ((Assignment)item).markComplete();
         return true;
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Returns all stored assignments and notes.
+     * Removes an assignment or note using its unique ID.
      *
-     * The returned list is a separate collection, so changing
-     * the list does not change the manager's LinkedChain.
+     * @param id ID of the item to remove
+     * @return true if the item was removed
+     */
+    public boolean removeById(String id) {
+
+        Item item = findById(id);
+
+        if (item == null) {
+            return false;
+        }
+
+        return items.remove(item);
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Updates an existing assignment.
      *
-     * @return a list of all stored items
+     * @param id assignment ID
+     * @param title updated title
+     * @param text updated description
+     * @param date updated due date
+     * @param course updated course
+     * @return true if the assignment was updated
+     * @throws IllegalArgumentException if new values are invalid
+     */
+    public boolean updateAssignment(
+        String id,
+        String title,
+        String text,
+        String date,
+        String course) {
+
+        Item item = findById(id);
+
+        if (!(item instanceof Assignment)) {
+            return false;
+        }
+
+        ((Assignment)item).update(title, text, date, course);
+        return true;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Updates an existing note.
+     *
+     * @param id note ID
+     * @param title updated note title
+     * @param text updated note text
+     * @return true if the note was updated
+     * @throws IllegalArgumentException if new values are invalid
+     */
+    public boolean updateNote(
+        String id,
+        String title,
+        String text) {
+
+        Item item = findById(id);
+
+        if (!(item instanceof Note)) {
+            return false;
+        }
+
+        ((Note)item).update(title, text);
+        return true;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Updates an assignment's priority.
+     *
+     * @param id assignment ID
+     * @param priority new priority level
+     * @return true if the priority was updated
+     * @throws IllegalArgumentException if priority is invalid
+     */
+    public boolean setAssignmentPriority(
+        String id,
+        String priority) {
+
+        Item item = findById(id);
+
+        if (!(item instanceof Assignment)) {
+            return false;
+        }
+
+        ((Assignment)item).setPriority(priority);
+        return true;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Returns all assignments and notes.
+     *
+     * @return list of all stored items
      */
     public List<Item> getAllItems() {
+
         List<Item> result = new ArrayList<Item>();
 
         for (int i = 0; i < items.size(); i++) {
@@ -188,59 +258,141 @@ public class TrackerManager {
 
     // ----------------------------------------------------------
     /**
-     * Returns all incomplete assignments with due dates
-     * earlier than the specified date.
+     * Returns all stored assignments.
      *
-     * This method also makes overdue detection testable
-     * without depending on the computer's current date.
+     * @return list of assignments
+     */
+    public List<Assignment> getAssignments() {
+
+        List<Assignment> result = new ArrayList<Assignment>();
+
+        for (Item item : getAllItems()) {
+            if (item instanceof Assignment) {
+                result.add((Assignment)item);
+            }
+        }
+
+        return result;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Returns all stored notes.
      *
-     * @param today the date used for comparison
-     * @return a list of overdue assignments
+     * @return list of notes
+     */
+    public List<Note> getNotes() {
+
+        List<Note> result = new ArrayList<Note>();
+
+        for (Item item : getAllItems()) {
+            if (item instanceof Note) {
+                result.add((Note)item);
+            }
+        }
+
+        return result;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Searches item titles and descriptions for a keyword.
+     * The search is not case-sensitive.
+     *
+     * @param keyword text to search for
+     * @return list of matching items
+     */
+    public List<Item> search(String keyword) {
+
+        List<Item> result = new ArrayList<Item>();
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return result;
+        }
+
+        String searchText = keyword.trim()
+            .toLowerCase(Locale.ROOT);
+
+        for (Item item : getAllItems()) {
+
+            String title = item.getTitle()
+                .toLowerCase(Locale.ROOT);
+
+            String text = item.getText()
+                .toLowerCase(Locale.ROOT);
+
+            if (title.contains(searchText)
+                || text.contains(searchText)) {
+
+                result.add(item);
+            }
+        }
+
+        return result;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Returns assignments belonging to a specified course.
+     *
+     * @param course course name to search for
+     * @return assignments matching the course
+     */
+    public List<Assignment> filterByCourse(String course) {
+
+        List<Assignment> result = new ArrayList<Assignment>();
+
+        if (course == null || course.trim().isEmpty()) {
+            return result;
+        }
+
+        for (Assignment assignment : getAssignments()) {
+            if (assignment.getCourse()
+                .equalsIgnoreCase(course.trim())) {
+
+                result.add(assignment);
+            }
+        }
+
+        return result;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Returns incomplete assignments due before a given date.
+     *
+     * @param today date used for comparison
+     * @return list of overdue assignments
      * @throws IllegalArgumentException if today is null
      */
     public List<Assignment> overdueAssignments(LocalDate today) {
 
         if (today == null) {
             throw new IllegalArgumentException(
-                "Comparison date cannot be null.");
+                "Date cannot be null.");
         }
 
-        List<Assignment> overdue =
-            new ArrayList<Assignment>();
+        List<Assignment> result = new ArrayList<Assignment>();
 
-        for (int i = 0; i < items.size(); i++) {
-            Item item = items.get(i);
-
-            if (item instanceof Assignment) {
-                Assignment assignment = (Assignment)item;
-
-                String dueDate = assignment.getDueDate();
-
-                if (dueDate != null
-                    && !dueDate.trim().isEmpty()
-                    && !assignment.isCompleted()) {
-
-                    LocalDate due =
-                        LocalDate.parse(dueDate.trim());
-
-                    if (due.isBefore(today)) {
-                        overdue.add(assignment);
-                    }
-                }
+        for (Assignment assignment : getAssignments()) {
+            if (assignment.isOverdue(today)) {
+                result.add(assignment);
             }
         }
 
-        return overdue;
+        return result;
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Finds assignments that are overdue as of today.
+     * Returns assignments overdue as of today.
      *
-     * This method is called by MainMenu.
-     *
-     * @return all incomplete assignments due before today
+     * @return list of overdue assignments
      */
     public List<Assignment> overdueAssignments() {
         return overdueAssignments(LocalDate.now());
@@ -249,9 +401,9 @@ public class TrackerManager {
 
     // ----------------------------------------------------------
     /**
-     * Returns the number of stored items.
+     * Returns the total number of stored items.
      *
-     * @return the number of assignments and notes
+     * @return number of items
      */
     public int size() {
         return items.size();
@@ -260,9 +412,9 @@ public class TrackerManager {
 
     // ----------------------------------------------------------
     /**
-     * Checks whether the manager has no stored items.
+     * Checks whether the tracker is empty.
      *
-     * @return true when the manager is empty
+     * @return true if no items are stored
      */
     public boolean isEmpty() {
         return items.isEmpty();
@@ -271,107 +423,97 @@ public class TrackerManager {
 
     // ----------------------------------------------------------
     /**
-     * Counts the number of stored assignments.
+     * Returns the number of assignments.
      *
-     * @return the assignment count
+     * @return assignment count
      */
     public int countAssignments() {
-        int count = 0;
-
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i) instanceof Assignment) {
-                count++;
-            }
-        }
-
-        return count;
+        return getAssignments().size();
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Counts the number of stored notes.
+     * Returns the number of notes.
      *
-     * @return the note count
+     * @return note count
      */
     public int countNotes() {
-        int count = 0;
-
-        for (int i = 0; i < items.size(); i++) {
-            if (items.get(i) instanceof Note) {
-                count++;
-            }
-        }
-
-        return count;
+        return getNotes().size();
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Removes all stored items.
-     *
-     * The next ID is not reset so previously issued
-     * IDs are not reused.
+     * Removes all assignments and notes from the tracker.
      */
     public void clear() {
         items.clear();
     }
 
 
-    //~ Private Methods .......................................................
-
     // ----------------------------------------------------------
     /**
-     * Checks whether an item title is valid.
+     * Counts assignments grouped by course.
+     * Includes both completed and incomplete assignments.
      *
-     * @param title the title to validate
-     * @throws IllegalArgumentException if title is blank
+     * @return map of course names and assignment counts
      */
-    private void validateTitle(String title) {
-        if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                "Title cannot be empty.");
+    public Map<String, Integer> courseWorkload() {
+
+        Map<String, Integer> counts =
+            new TreeMap<String, Integer>();
+
+        for (Assignment assignment : getAssignments()) {
+
+            String course = assignment.getCourse();
+
+            if (counts.containsKey(course)) {
+                counts.put(course, counts.get(course) + 1);
+            }
+            else {
+                counts.put(course, 1);
+            }
         }
+
+        return counts;
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Checks whether a due date uses YYYY-MM-DD format
-     * and represents an actual calendar date.
+     * Returns assignments due within a seven-day period.
+     * Results are sorted by due date.
      *
-     * @param dueDate the date to validate
-     * @throws IllegalArgumentException if date is invalid
+     * @param start first day of the week
+     * @return assignments due during the selected week
+     * @throws IllegalArgumentException if start is null
      */
-    private void validateDate(String dueDate) {
-        if (dueDate == null || dueDate.trim().isEmpty()) {
+    public List<Assignment> weeklySchedule(LocalDate start) {
+
+        if (start == null) {
             throw new IllegalArgumentException(
-                "Due date cannot be empty.");
+                "Start date cannot be null.");
         }
 
-        try {
-            LocalDate.parse(dueDate.trim());
-        }
-        catch (DateTimeParseException e) {
-            throw new IllegalArgumentException(
-                "Due date must be a valid YYYY-MM-DD date.");
-        }
-    }
+        List<Assignment> result =
+            new ArrayList<Assignment>();
 
+        for (Assignment assignment : getAssignments()) {
 
-    // ----------------------------------------------------------
-    /**
-     * Converts optional null text to an empty string.
-     *
-     * @param text the original text
-     * @return cleaned text
-     */
-    private String clean(String text) {
-        if (text == null) {
-            return "";
+            LocalDate due =
+                LocalDate.parse(assignment.getDueDate());
+
+            if (!due.isBefore(start)
+                && due.isBefore(start.plusDays(7))) {
+
+                result.add(assignment);
+            }
         }
 
-        return text.trim();
+        result.sort((a, b) ->
+            a.getDueDate().compareTo(b.getDueDate()));
+
+        return result;
     }
 }

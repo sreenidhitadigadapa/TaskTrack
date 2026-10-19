@@ -1,38 +1,42 @@
 
 package tracker;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 // -------------------------------------------------------------------------
 /**
  * Represents an assignment in TaskTrack.
- * Stores assignment details and completion status.
+ * Stores assignment details, priority, and completion status.
  *
  * @author zaraaomerr
- * @version 13 Oct 2026
+ * @version 19 Oct 2026
  */
 public class Assignment implements Item {
 
     //~ Fields ................................................................
 
-    private int id;
+    private final int id;
     private String title;
     private String text;
     private String dueDate;
     private String course;
     private boolean completed;
+    private String priority;
 
 
     //~ Constructors ..........................................................
 
     // ----------------------------------------------------------
     /**
-     * Creates a new assignment.
+     * Creates a new incomplete assignment.
      *
      * @param id assignment ID
      * @param title assignment title
      * @param text assignment description
-     * @param dueDate assignment due date
+     * @param dueDate due date in YYYY-MM-DD format
      * @param course course name
-     * @throws IllegalArgumentException if the title is null or blank
+     * @throws IllegalArgumentException if title or date is invalid
      */
     public Assignment(
         int id,
@@ -41,16 +45,9 @@ public class Assignment implements Item {
         String dueDate,
         String course) {
 
-        if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException(
-                "Assignment title cannot be empty.");
-        }
-
         this.id = id;
-        this.title = title;
-        this.text = text;
-        this.dueDate = dueDate;
-        this.course = course;
+        this.priority = "Medium";
+        update(title, text, dueDate, course);
         this.completed = false;
     }
 
@@ -106,7 +103,7 @@ public class Assignment implements Item {
 
     // ----------------------------------------------------------
     /**
-     * Returns the course name.
+     * Returns the assignment course.
      *
      * @return course name
      */
@@ -117,7 +114,18 @@ public class Assignment implements Item {
 
     // ----------------------------------------------------------
     /**
-     * Checks whether the assignment has been completed.
+     * Returns the assignment priority.
+     *
+     * @return Low, Medium, or High
+     */
+    public String getPriority() {
+        return priority;
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Checks whether the assignment is complete.
      *
      * @return true if completed, false otherwise
      */
@@ -138,14 +146,13 @@ public class Assignment implements Item {
     // ----------------------------------------------------------
     /**
      * Updates the assignment information.
-     *
-     * The assignment ID and completion status remain unchanged.
+     * Keeps the ID and completion status unchanged.
      *
      * @param newTitle updated title
      * @param newText updated description
      * @param newDueDate updated due date
      * @param newCourse updated course
-     * @throws IllegalArgumentException if the new title is null or blank
+     * @throws IllegalArgumentException if title or date is invalid
      */
     public void update(
         String newTitle,
@@ -158,10 +165,65 @@ public class Assignment implements Item {
                 "Assignment title cannot be empty.");
         }
 
-        title = newTitle;
-        text = newText;
-        dueDate = newDueDate;
-        course = newCourse;
+        if (newDueDate == null) {
+            throw new IllegalArgumentException(
+                "Due date must be YYYY-MM-DD.");
+        }
+
+        try {
+            LocalDate.parse(newDueDate.trim());
+        }
+        catch (DateTimeParseException e) {
+            throw new IllegalArgumentException(
+                "Due date must be a valid YYYY-MM-DD date.");
+        }
+
+        title = newTitle.trim();
+        text = newText == null ? "" : newText.trim();
+        dueDate = newDueDate.trim();
+        course = newCourse == null ? "" : newCourse.trim();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Updates the priority of the assignment.
+     *
+     * @param value Low, Medium, or High priority
+     * @throws IllegalArgumentException if priority is invalid
+     */
+    public void setPriority(String value) {
+        if (value == null
+            || !(value.equalsIgnoreCase("Low")
+                || value.equalsIgnoreCase("Medium")
+                || value.equalsIgnoreCase("High"))) {
+
+            throw new IllegalArgumentException(
+                "Priority must be Low, Medium, or High.");
+        }
+
+        priority = value.substring(0, 1).toUpperCase()
+            + value.substring(1).toLowerCase();
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Checks whether the assignment is overdue.
+     * Completed assignments are not considered overdue.
+     *
+     * @param today date used for comparison
+     * @return true if incomplete and due before today
+     * @throws IllegalArgumentException if today is null
+     */
+    public boolean isOverdue(LocalDate today) {
+        if (today == null) {
+            throw new IllegalArgumentException(
+                "Comparison date cannot be null.");
+        }
+
+        return !completed
+            && LocalDate.parse(dueDate).isBefore(today);
     }
 
 
@@ -178,6 +240,7 @@ public class Assignment implements Item {
             + " | Description: " + text
             + " | Course: " + course
             + " | Due: " + dueDate
-            + " | Completed: " + completed;
+            + " | Completed: " + completed
+            + " | Priority: " + priority;
     }
 }

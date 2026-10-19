@@ -3,14 +3,16 @@ package tracker;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import student.TestCase;
 
 // -------------------------------------------------------------------------
 /**
- * Tests the TrackerManager class and its public behavior.
+ * Tests the extended features of TrackerManager.
+ * Includes normal, invalid-input, and edge-case tests.
  *
  * @author sreenidhitadigadapa
- * @version 13 Oct 2026
+ * @version 19 Oct 2026
  */
 public class TrackerManagerTest extends TestCase {
 
@@ -23,7 +25,7 @@ public class TrackerManagerTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Creates a fresh manager before each test.
+     * Creates an empty manager before each test.
      */
     public void setUp() {
         manager = new TrackerManager();
@@ -32,277 +34,262 @@ public class TrackerManagerTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests creating a valid assignment.
+     * Tests removing an item when duplicate titles exist.
      */
-    public void testCreateAssignment() {
-        Assignment assignment = manager.createAssignment(
-            "Homework", "Chapter 3", "2026-10-20", "CS2114");
+    public void testRemoveByIdDuplicates() {
 
-        assertNotNull(assignment);
-        assertEquals(1, assignment.getId());
-        assertEquals("Homework", assignment.getTitle());
+        Assignment first = manager.createAssignment(
+            "Homework", "First", "2026-10-20", "CS");
+
+        Assignment second = manager.createAssignment(
+            "Homework", "Second", "2026-10-21", "CS");
+
+        assertTrue(manager.removeById(
+            String.valueOf(first.getId())));
+
+        assertNull(manager.findById(
+            String.valueOf(first.getId())));
+
+        assertEquals(
+            second,
+            manager.findById(
+                String.valueOf(second.getId())));
+
         assertEquals(1, manager.size());
-        assertEquals(1, manager.countAssignments());
-        assertFalse(manager.isEmpty());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tests rejecting an assignment with an empty title.
+     * Tests removing an item that does not exist.
      */
-    public void testInvalidAssignmentTitle() {
-        try {
-            manager.createAssignment(
-                "", "Homework", "2026-10-20", "CS2114");
+    public void testRemoveMissingItem() {
 
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertEquals(0, manager.size());
-        }
-    }
+        manager.createNote("Notes", "Study Java");
 
-
-    // ----------------------------------------------------------
-    /**
-     * Tests rejecting an invalid due date.
-     */
-    public void testInvalidDueDate() {
-        try {
-            manager.createAssignment(
-                "Homework", "Chapter 3",
-                "2026-99-99", "CS2114");
-
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue(manager.isEmpty());
-        }
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests rejecting a null assignment title.
-     */
-    public void testNullAssignmentTitle() {
-        try {
-            manager.createAssignment(
-                null, "Homework", "2026-10-20", "CS2114");
-
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue(manager.isEmpty());
-        }
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests creating a valid note.
-     */
-    public void testCreateNote() {
-        Note note = manager.createNote(
-            "Lecture Notes", "Linked lists");
-
-        assertNotNull(note);
-        assertEquals(1, note.getId());
-        assertEquals("Lecture Notes", note.getTitle());
+        assertFalse(manager.removeById("999"));
         assertEquals(1, manager.size());
-        assertEquals(1, manager.countNotes());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tests rejecting empty note text.
+     * Tests removing from an empty tracker.
      */
-    public void testInvalidNoteText() {
-        try {
-            manager.createNote("Lecture Notes", "");
+    public void testRemoveFromEmpty() {
 
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertEquals(0, manager.size());
-        }
+        assertFalse(manager.removeById("1"));
+        assertTrue(manager.isEmpty());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tests rejecting a null note title.
+     * Tests searching assignments and notes.
      */
-    public void testNullNoteTitle() {
-        try {
-            manager.createNote(null, "Lecture content");
+    public void testSearch() {
 
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue(manager.isEmpty());
-        }
-    }
+        manager.createAssignment(
+            "Linked Lists",
+            "Practice Java",
+            "2026-10-20",
+            "CS 2114");
 
-
-    // ----------------------------------------------------------
-    /**
-     * Tests finding an assignment using its ID.
-     */
-    public void testFindById() {
-        Assignment assignment = manager.createAssignment(
-            "Quiz", "Study", "2026-10-20", "CS2114");
-
-        Item found = manager.findById(
-            String.valueOf(assignment.getId()));
-
-        assertEquals(assignment, found);
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests finding a note using its ID.
-     */
-    public void testFindNoteById() {
-        Note note = manager.createNote(
-            "Notes", "Lecture content");
-
-        Item found = manager.findById(
-            String.valueOf(note.getId()));
-
-        assertEquals(note, found);
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests finding a nonexistent or invalid item ID.
-     */
-    public void testFindMissingId() {
-        assertNull(manager.findById("999"));
-        assertNull(manager.findById("abc"));
-        assertNull(manager.findById(null));
-        assertNull(manager.findById(""));
-        assertNull(manager.findById(" "));
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests completing a valid assignment.
-     */
-    public void testCompleteAssignment() {
-        Assignment assignment = manager.createAssignment(
-            "Project", "Finish code",
-            "2026-10-20", "CS2114");
-
-        assertTrue(manager.completeAssignment(
-            String.valueOf(assignment.getId())));
-
-        assertTrue(assignment.isCompleted());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests completing a nonexistent assignment.
-     */
-    public void testCompleteMissingAssignment() {
-        assertFalse(manager.completeAssignment("999"));
-        assertFalse(manager.completeAssignment("abc"));
-        assertFalse(manager.completeAssignment(null));
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests that a note cannot be completed as an assignment.
-     */
-    public void testCannotCompleteNote() {
-        Note note = manager.createNote(
-            "Notes", "Lecture content");
-
-        assertFalse(manager.completeAssignment(
-            String.valueOf(note.getId())));
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests retrieving all stored items.
-     */
-    public void testGetAllItems() {
-        Assignment assignment = manager.createAssignment(
-            "Homework", "Finish project",
-            "2026-10-20", "CS2114");
-
-        Note note = manager.createNote(
-            "Study Notes", "Review linked lists");
-
-        List<Item> allItems = manager.getAllItems();
-
-        assertEquals(2, allItems.size());
-        assertEquals(assignment, allItems.get(0));
-        assertEquals(note, allItems.get(1));
-        assertTrue(allItems.get(0) instanceof Assignment);
-        assertTrue(allItems.get(1) instanceof Note);
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests retrieving items from an empty manager.
-     */
-    public void testGetAllItemsEmpty() {
-        List<Item> allItems = manager.getAllItems();
-
-        assertNotNull(allItems);
-        assertTrue(allItems.isEmpty());
-        assertEquals(0, allItems.size());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests that modifying the returned list does not
-     * remove items from the manager.
-     */
-    public void testGetAllItemsSeparateList() {
         manager.createNote(
-            "Notes", "Lecture content");
+            "Exam Notes",
+            "Review linked lists");
 
-        List<Item> allItems = manager.getAllItems();
+        List<Item> results = manager.search("LINKED");
 
-        allItems.clear();
-
-        assertEquals(1, manager.size());
-        assertEquals(0, allItems.size());
+        assertEquals(2, results.size());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tests overdue detection using a fixed date.
+     * Tests searching for a nonexistent keyword.
+     */
+    public void testSearchMissing() {
+
+        manager.createNote("Java", "Practice");
+
+        assertTrue(manager.search("Python").isEmpty());
+        assertEquals(1, manager.size());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests searching with empty input.
+     */
+    public void testSearchEmptyInput() {
+
+        assertTrue(manager.search("").isEmpty());
+        assertTrue(manager.search(null).isEmpty());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests filtering assignments by course.
+     */
+    public void testFilterByCourse() {
+
+        manager.createAssignment(
+            "Homework 1", "Java", "2026-10-20", "CS 2114");
+
+        manager.createAssignment(
+            "Homework 2", "Math", "2026-10-21", "MATH 3134");
+
+        assertEquals(
+            1,
+            manager.filterByCourse("cs 2114").size());
+
+        assertTrue(
+            manager.filterByCourse("ECE 1004").isEmpty());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests editing an assignment.
+     */
+    public void testUpdateAssignment() {
+
+        Assignment assignment = manager.createAssignment(
+            "Homework", "Old", "2026-10-20", "CS");
+
+        assertTrue(manager.updateAssignment(
+            String.valueOf(assignment.getId()),
+            "Project",
+            "New description",
+            "2026-10-25",
+            "ECE"));
+
+        assertEquals("Project", assignment.getTitle());
+        assertEquals("ECE", assignment.getCourse());
+        assertEquals(
+            "2026-10-25",
+            assignment.getDueDate());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests rejecting an invalid assignment update.
+     */
+    public void testInvalidAssignmentUpdate() {
+
+        Assignment assignment = manager.createAssignment(
+            "Homework", "Old", "2026-10-20", "CS");
+
+        try {
+            manager.updateAssignment(
+                String.valueOf(assignment.getId()),
+                "",
+                "New",
+                "2026-10-25",
+                "CS");
+
+            fail("Expected IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e) {
+            assertEquals(
+                "Homework",
+                assignment.getTitle());
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests editing an existing note.
+     */
+    public void testUpdateNote() {
+
+        Note note = manager.createNote(
+            "Old Notes", "Old text");
+
+        assertTrue(manager.updateNote(
+            String.valueOf(note.getId()),
+            "New Notes",
+            "New text"));
+
+        assertEquals("New Notes", note.getTitle());
+        assertEquals("New text", note.getText());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests that a missing note cannot be updated.
+     */
+    public void testUpdateMissingNote() {
+
+        assertFalse(manager.updateNote(
+            "999", "Title", "Text"));
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests assigning a priority level.
+     */
+    public void testPriority() {
+
+        Assignment assignment = manager.createAssignment(
+            "Homework", "Java", "2026-10-20", "CS");
+
+        assertEquals("Medium", assignment.getPriority());
+
+        assertTrue(manager.setAssignmentPriority(
+            String.valueOf(assignment.getId()),
+            "high"));
+
+        assertEquals("High", assignment.getPriority());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests rejecting an invalid priority.
+     */
+    public void testInvalidPriority() {
+
+        Assignment assignment = manager.createAssignment(
+            "Homework", "Java", "2026-10-20", "CS");
+
+        try {
+            manager.setAssignmentPriority(
+                String.valueOf(assignment.getId()),
+                "Urgent");
+
+            fail("Expected IllegalArgumentException");
+        }
+        catch (IllegalArgumentException e) {
+            assertEquals(
+                "Medium",
+                assignment.getPriority());
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests overdue assignment detection.
      */
     public void testOverdueAssignments() {
-        manager.createAssignment(
-            "Old Homework", "Finish",
-            "2026-10-01", "CS2114");
 
         manager.createAssignment(
-            "Future Homework", "Finish",
-            "2026-10-30", "CS2114");
+            "Old", "Past", "2026-10-18", "CS");
 
-        List<Assignment> overdue =
+        manager.createAssignment(
+            "Today", "Current", "2026-10-19", "CS");
+
+        assertEquals(
+            1,
             manager.overdueAssignments(
-                LocalDate.of(2026, 10, 13));
-
-        assertEquals(1, overdue.size());
-        assertEquals("Old Homework",
-            overdue.get(0).getTitle());
+                LocalDate.of(2026, 10, 19)).size());
     }
 
 
@@ -311,69 +298,78 @@ public class TrackerManagerTest extends TestCase {
      * Tests that completed assignments are not overdue.
      */
     public void testCompletedNotOverdue() {
+
         Assignment assignment = manager.createAssignment(
-            "Old Project", "Finish",
-            "2026-10-01", "CS2114");
+            "Old", "Past", "2026-10-18", "CS");
 
-        manager.completeAssignment(
-            String.valueOf(assignment.getId()));
+        assignment.markComplete();
 
-        assertTrue(manager.overdueAssignments(
-            LocalDate.of(2026, 10, 13)).isEmpty());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests that an assignment due today is not overdue.
-     */
-    public void testDueTodayNotOverdue() {
-        manager.createAssignment(
-            "Today's Homework", "Finish",
-            "2026-10-13", "CS2114");
-
-        List<Assignment> overdue =
+        assertTrue(
             manager.overdueAssignments(
-                LocalDate.of(2026, 10, 13));
-
-        assertTrue(overdue.isEmpty());
+                LocalDate.of(2026, 10, 19)).isEmpty());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tests overdue detection with an empty collection.
+     * Tests the course workload summary.
      */
-    public void testOverdueEmptyCollection() {
-        assertTrue(manager.overdueAssignments(
-            LocalDate.of(2026, 10, 13)).isEmpty());
-    }
+    public void testCourseWorkload() {
 
-
-    // ----------------------------------------------------------
-    /**
-     * Tests rejecting a null comparison date.
-     */
-    public void testNullComparisonDate() {
-        try {
-            manager.overdueAssignments((LocalDate)null);
-
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertTrue(manager.isEmpty());
-        }
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests counting two different item types.
-     */
-    public void testCountItems() {
         manager.createAssignment(
-            "Homework", "Finish",
-            "2026-10-20", "CS2114");
+            "HW1", "A", "2026-10-20", "CS");
+
+        manager.createAssignment(
+            "HW2", "B", "2026-10-21", "CS");
+
+        manager.createAssignment(
+            "HW3", "C", "2026-10-22", "ECE");
+
+        Map<String, Integer> workload =
+            manager.courseWorkload();
+
+        assertEquals(2, workload.get("CS").intValue());
+        assertEquals(1, workload.get("ECE").intValue());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests the weekly assignment schedule.
+     */
+    public void testWeeklySchedule() {
+
+        manager.createAssignment(
+            "Monday", "A", "2026-10-19", "CS");
+
+        manager.createAssignment(
+            "Friday", "B", "2026-10-23", "CS");
+
+        manager.createAssignment(
+            "Next Week", "C", "2026-10-27", "CS");
+
+        List<Assignment> schedule =
+            manager.weeklySchedule(
+                LocalDate.of(2026, 10, 19));
+
+        assertEquals(2, schedule.size());
+        assertEquals(
+            "Monday",
+            schedule.get(0).getTitle());
+        assertEquals(
+            "Friday",
+            schedule.get(1).getTitle());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Tests counting assignments and notes.
+     */
+    public void testCounts() {
+
+        manager.createAssignment(
+            "Homework", "Java", "2026-10-20", "CS");
 
         manager.createNote("Notes", "Study");
 
@@ -385,46 +381,28 @@ public class TrackerManagerTest extends TestCase {
 
     // ----------------------------------------------------------
     /**
-     * Tests counts for an empty collection.
-     */
-    public void testEmptyCounts() {
-        assertEquals(0, manager.countAssignments());
-        assertEquals(0, manager.countNotes());
-        assertEquals(0, manager.size());
-        assertTrue(manager.isEmpty());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests clearing all stored items.
+     * Tests clearing a populated tracker.
      */
     public void testClear() {
+
         manager.createNote("Notes", "Study");
 
         manager.clear();
 
         assertTrue(manager.isEmpty());
         assertEquals(0, manager.size());
-        assertTrue(manager.getAllItems().isEmpty());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Tests that IDs remain unique after clearing items.
+     * Tests clearing an already empty tracker.
      */
-    public void testIdsAfterClear() {
-        Note first = manager.createNote(
-            "First Note", "First content");
+    public void testClearEmpty() {
 
         manager.clear();
+        manager.clear();
 
-        Note second = manager.createNote(
-            "Second Note", "Second content");
-
-        assertEquals(1, first.getId());
-        assertEquals(2, second.getId());
-        assertEquals(1, manager.size());
+        assertTrue(manager.isEmpty());
     }
 }

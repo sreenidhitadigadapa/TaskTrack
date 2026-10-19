@@ -1,36 +1,57 @@
 
 package tracker;
 
-import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 // -------------------------------------------------------------------------
 /**
- * Runs the TaskTrack console menu and connects TrackerManager and Item
- * objects into one program.
+ * Provides the console menu for TaskTrack.
+ * Allows users to manage assignments and notes.
  *
  * @author miguel33
- * @version 13 Oct 2026
+ * @version 19 Oct 2026
  */
 public class MainMenu {
 
     //~ Fields ................................................................
 
-    private TrackerManager manager;
-    private Scanner input;
+    private final TrackerManager manager;
+    private final Scanner scanner;
 
 
     //~ Constructors ..........................................................
 
     // ----------------------------------------------------------
     /**
-     * Creates a MainMenu that reads user input from the given Scanner.
-     *
-     * @param input where the user's input comes from
+     * Creates a menu with a new tracker manager.
      */
-    public MainMenu(Scanner input) {
-        this.input = input;
-        this.manager = new TrackerManager();
+    public MainMenu() {
+        this(new TrackerManager(), new Scanner(System.in));
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Creates a menu using a manager and scanner.
+     *
+     * @param manager tracker manager
+     * @param scanner scanner for user input
+     */
+    public MainMenu(
+        TrackerManager manager,
+        Scanner scanner) {
+
+        if (manager == null || scanner == null) {
+            throw new IllegalArgumentException(
+                "Manager and scanner cannot be null.");
+        }
+
+        this.manager = manager;
+        this.scanner = scanner;
     }
 
 
@@ -38,39 +59,131 @@ public class MainMenu {
 
     // ----------------------------------------------------------
     /**
-     * Starts the program.
+     * Starts the TaskTrack application.
      *
-     * @param args command-line arguments (not used)
+     * @param args command-line arguments
      */
     public static void main(String[] args) {
-        MainMenu menu = new MainMenu(new Scanner(System.in));
+        MainMenu menu = new MainMenu();
         menu.run();
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Shows the menu until the user quits.
-     * Handles invalid input without ending the program.
+     * Runs the main menu until the user exits.
+     * Handles invalid input without crashing the application.
      */
     public void run() {
-        System.out.println("===== Welcome to TaskTrack =====");
 
-        boolean running = true;
+        while (true) {
 
-        while (running) {
-            printMenu();
-            String choice = readLine("Choose an option: ");
+            showMenu();
 
-            if (choice == null) {
+            String choice;
+
+            try {
+                choice = readLine("Choose an option");
+            }
+            catch (IllegalStateException e) {
                 return;
             }
 
             try {
-                running = handleChoice(choice);
+                switch (choice) {
+
+                    case "1":
+                        addAssignment();
+                        break;
+
+                    case "2":
+                        addNote();
+                        break;
+
+                    case "3":
+                        completeAssignment();
+                        break;
+
+                    case "4":
+                        showList(
+                            "All Items",
+                            manager.getAllItems());
+                        break;
+
+                    case "5":
+                        showList(
+                            "Overdue Assignments",
+                            manager.overdueAssignments());
+                        break;
+
+                    case "6":
+                        showList(
+                            "Assignments",
+                            manager.getAssignments());
+                        break;
+
+                    case "7":
+                        showList(
+                            "Notes",
+                            manager.getNotes());
+                        break;
+
+                    case "8":
+                        searchItems();
+                        break;
+
+                    case "9":
+                        removeItem();
+                        break;
+
+                    case "10":
+                        clearItems();
+                        break;
+
+                    case "11":
+                        showCounts();
+                        break;
+
+                    case "12":
+                        editAssignment();
+                        break;
+
+                    case "13":
+                        editNote();
+                        break;
+
+                    case "14":
+                        filterCourse();
+                        break;
+
+                    case "15":
+                        updatePriority();
+                        break;
+
+                    case "16":
+                        showCourseWorkload();
+                        break;
+
+                    case "17":
+                        showWeeklySchedule();
+                        break;
+
+                    case "0":
+                        System.out.println("Goodbye!");
+                        return;
+
+                    default:
+                        System.out.println(
+                            "Invalid menu option. Try again.");
+                        break;
+                }
             }
             catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
+                System.out.println(
+                    "Invalid input: " + e.getMessage());
+            }
+            catch (IllegalStateException e) {
+                return;
             }
         }
     }
@@ -80,218 +193,346 @@ public class MainMenu {
 
     // ----------------------------------------------------------
     /**
-     * Runs the menu option selected by the user.
-     *
-     * @param choice the user's menu selection
-     * @return false if the user chooses to quit, true otherwise
+     * Displays the available menu options.
      */
-    private boolean handleChoice(String choice) {
-        if (choice.equals("1")) {
-            handleAddAssignment();
-        }
-        else if (choice.equals("2")) {
-            handleAddNote();
-        }
-        else if (choice.equals("3")) {
-            handleCompleteAssignment();
-        }
-        else if (choice.equals("4")) {
-            showList();
-        }
-        else if (choice.equals("5")) {
-            handleViewOverdue();
-        }
-        else if (choice.equals("0")) {
-            System.out.println("Goodbye!");
-            return false;
-        }
-        else {
-            System.out.println("\"" + choice + "\" is not an option. "
-                + "Please select a number from the menu.");
-        }
+    private void showMenu() {
 
-        return true;
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Prints the main menu options.
-     */
-    private void printMenu() {
         System.out.println();
-        System.out.println("===== TaskTrack Menu =====");
-        System.out.println(" 1. Add Assignment");
-        System.out.println(" 2. Add Note");
-        System.out.println(" 3. Complete Assignment");
-        System.out.println(" 4. Show All Items");
-        System.out.println(" 5. View Overdue Assignments");
-        System.out.println(" 0. Quit");
+        System.out.println("========== TaskTrack ==========");
+        System.out.println("1.  Add Assignment");
+        System.out.println("2.  Add Note");
+        System.out.println("3.  Complete Assignment");
+        System.out.println("4.  Show All Items");
+        System.out.println("5.  View Overdue Assignments");
+        System.out.println("6.  View Assignments");
+        System.out.println("7.  View Notes");
+        System.out.println("8.  Search Items");
+        System.out.println("9.  Remove Item");
+        System.out.println("10. Clear All Items");
+        System.out.println("11. Show Item Counts");
+        System.out.println("12. Edit Assignment");
+        System.out.println("13. Edit Note");
+        System.out.println("14. Filter by Course");
+        System.out.println("15. Set Assignment Priority");
+        System.out.println("16. Course Workload Summary");
+        System.out.println("17. Weekly Schedule");
+        System.out.println("0.  Exit");
+        System.out.println("===============================");
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Collects details to add a new assignment.
+     * Reads a line of input from the user.
+     *
+     * @param message prompt displayed to the user
+     * @return trimmed user input
+     * @throws IllegalStateException if input is closed
      */
-    private void handleAddAssignment() {
-        String title = readLine("Title: ");
-        if (title == null) {
-            return;
+    private String readLine(String message) {
+
+        System.out.print(message + ": ");
+
+        if (!scanner.hasNextLine()) {
+            throw new IllegalStateException(
+                "Input is no longer available.");
         }
 
-        String text = readLine("Description: ");
-        if (text == null) {
-            return;
-        }
-
-        String dueDate = readLine("Due Date (YYYY-MM-DD): ");
-        if (dueDate == null) {
-            return;
-        }
-
-        String className = readLine("Class Name: ");
-        if (className == null) {
-            return;
-        }
-
-        Assignment assignment =
-            manager.createAssignment(title, text, dueDate, className);
-
-        System.out.println("Assignment added successfully!");
-        System.out.println("Assignment ID: " + assignment.getId());
+        return scanner.nextLine().trim();
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Collects details to add a new note.
+     * Displays a list of stored items.
+     *
+     * @param heading title displayed above the list
+     * @param values items to display
      */
-    private void handleAddNote() {
-        String title = readLine("Title: ");
-        if (title == null) {
+    private void showList(
+        String heading,
+        List<?> values) {
+
+        System.out.println();
+        System.out.println("=== " + heading + " ===");
+
+        if (values.isEmpty()) {
+            System.out.println("No matching items found.");
             return;
         }
 
-        String text = readLine("Text: ");
-        if (text == null) {
-            return;
+        for (Object item : values) {
+            System.out.println(item);
         }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Prompts the user to create an assignment.
+     */
+    private void addAssignment() {
+
+        String title = readLine("Assignment title");
+        String text = readLine("Description");
+        String dueDate = readLine("Due date (YYYY-MM-DD)");
+        String course = readLine("Course");
+
+        Assignment assignment = manager.createAssignment(
+            title, text, dueDate, course);
+
+        System.out.println(
+            "Assignment added with ID: "
+                + assignment.getId());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Prompts the user to create a note.
+     */
+    private void addNote() {
+
+        String title = readLine("Note title");
+        String text = readLine("Note text");
 
         Note note = manager.createNote(title, text);
 
-        System.out.println("Note added successfully!");
-        System.out.println("Note ID: " + note.getId());
+        System.out.println(
+            "Note added with ID: " + note.getId());
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Marks an assignment complete by ID.
+     * Marks an assignment as complete.
      */
-    private void handleCompleteAssignment() {
-        String id = readLine("Enter Assignment ID to mark complete: ");
-        if (id == null) {
-            return;
-        }
+    private void completeAssignment() {
 
-        boolean success = manager.completeAssignment(id);
+        String id = readLine("Assignment ID");
 
-        if (success) {
-            System.out.println("Assignment marked as completed.");
+        if (manager.completeAssignment(id)) {
+            System.out.println("Assignment completed.");
         }
         else {
-            System.out.println("Assignment ID not found "
-                + "or does not belong to an assignment.");
+            System.out.println("Assignment not found.");
         }
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Displays all assignments and notes currently in the tracker.
+     * Searches assignments and notes using a keyword.
      */
-    private void showList() {
-        System.out.println("\n--- All Tracker Items ---");
+    private void searchItems() {
 
-        List<Item> itemList = manager.getAllItems();
+        String keyword = readLine("Search keyword");
 
-        if (itemList.isEmpty()) {
-            System.out.println("No items in the tracker.");
+        showList(
+            "Search Results",
+            manager.search(keyword));
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Removes an item using its unique ID.
+     */
+    private void removeItem() {
+
+        String id = readLine("Item ID");
+
+        if (manager.removeById(id)) {
+            System.out.println("Item removed.");
+        }
+        else {
+            System.out.println("Item not found.");
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Clears the tracker after user confirmation.
+     */
+    private void clearItems() {
+
+        String confirmation =
+            readLine("Type YES to clear all items");
+
+        if (confirmation.equals("YES")) {
+            manager.clear();
+            System.out.println("All items cleared.");
+        }
+        else {
+            System.out.println("Clear cancelled.");
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Displays assignment, note, and total item counts.
+     */
+    private void showCounts() {
+
+        System.out.println(
+            "Assignments: " + manager.countAssignments());
+
+        System.out.println(
+            "Notes: " + manager.countNotes());
+
+        System.out.println(
+            "Total items: " + manager.size());
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Updates an existing assignment.
+     */
+    private void editAssignment() {
+
+        String id = readLine("Assignment ID");
+
+        if (!(manager.findById(id) instanceof Assignment)) {
+            System.out.println("Assignment not found.");
             return;
         }
 
-        for (int i = 0; i < itemList.size(); i++) {
-            Item item = itemList.get(i);
-            System.out.println("  " + (i + 1) + ". " + item);
+        String title = readLine("New title");
+        String text = readLine("New description");
+        String date = readLine("New due date (YYYY-MM-DD)");
+        String course = readLine("New course");
+
+        if (manager.updateAssignment(
+            id, title, text, date, course)) {
+
+            System.out.println("Assignment updated.");
+        }
+        else {
+            System.out.println("Assignment not found.");
         }
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Displays all incomplete assignments with overdue dates.
+     * Updates an existing note.
      */
-    private void handleViewOverdue() {
-        System.out.println("\n--- Overdue Assignments ---");
+    private void editNote() {
 
-        List<Assignment> overdue = manager.overdueAssignments();
+        String id = readLine("Note ID");
 
-        if (overdue.isEmpty()) {
-            System.out.println("No overdue assignments.");
+        if (!(manager.findById(id) instanceof Note)) {
+            System.out.println("Note not found.");
             return;
         }
 
-        for (Assignment assignment : overdue) {
-            System.out.println("  " + assignment);
+        String title = readLine("New title");
+        String text = readLine("New text");
+
+        if (manager.updateNote(id, title, text)) {
+            System.out.println("Note updated.");
+        }
+        else {
+            System.out.println("Note not found.");
         }
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Shows a prompt and reads one line of input.
-     *
-     * @param prompt the question to display
-     * @return the cleaned input, or null if input has ended
+     * Displays assignments for a selected course.
      */
-    private String readLine(String prompt) {
-        System.out.print(prompt);
+    private void filterCourse() {
 
-        if (!input.hasNextLine()) {
-            System.out.println();
-            return null;
-        }
+        String course = readLine("Course name");
 
-        return cleanInput(input.nextLine());
+        showList(
+            "Course Assignments",
+            manager.filterByCourse(course));
     }
 
 
     // ----------------------------------------------------------
     /**
-     * Cleans hidden character input artifacts.
-     *
-     * @param text the line entered by the user
-     * @return the cleaned text
+     * Updates the priority of an assignment.
      */
-    private String cleanInput(String text) {
-        String cleaned = "";
+    private void updatePriority() {
 
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
+        String id = readLine("Assignment ID");
 
-            if (Character.isDigit(c)) {
-                cleaned = cleaned + Character.getNumericValue(c);
+        if (!(manager.findById(id) instanceof Assignment)) {
+            System.out.println("Assignment not found.");
+            return;
+        }
+
+        String priority =
+            readLine("Priority (Low/Medium/High)");
+
+        if (manager.setAssignmentPriority(id, priority)) {
+            System.out.println("Priority updated.");
+        }
+        else {
+            System.out.println("Assignment not found.");
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Displays the number of assignments in each course.
+     */
+    private void showCourseWorkload() {
+
+        Map<String, Integer> workload =
+            manager.courseWorkload();
+
+        System.out.println();
+        System.out.println("=== Course Workload ===");
+
+        if (workload.isEmpty()) {
+            System.out.println("No assignments found.");
+            return;
+        }
+
+        for (Map.Entry<String, Integer> entry
+            : workload.entrySet()) {
+
+            System.out.println(
+                entry.getKey() + ": "
+                    + entry.getValue() + " assignments");
+        }
+    }
+
+
+    // ----------------------------------------------------------
+    /**
+     * Displays assignments due during a selected week.
+     */
+    private void showWeeklySchedule() {
+
+        String input = readLine(
+            "Week start (YYYY-MM-DD, blank for today)");
+
+        LocalDate start;
+
+        if (input.isEmpty()) {
+            start = LocalDate.now();
+        }
+        else {
+            try {
+                start = LocalDate.parse(input);
             }
-            else if (Character.isSpaceChar(c)
-                || Character.isWhitespace(c)) {
-                cleaned = cleaned + " ";
-            }
-            else if (Character.getType(c) != Character.FORMAT) {
-                cleaned = cleaned + c;
+            catch (DateTimeParseException e) {
+                throw new IllegalArgumentException(
+                    "Enter a valid date in YYYY-MM-DD format.");
             }
         }
 
-        return cleaned.trim();
+        showList(
+            "Weekly Assignments",
+            manager.weeklySchedule(start));
     }
 }
