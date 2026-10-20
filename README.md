@@ -37,6 +37,10 @@ All implemented tests pass, and the prototype compiles and runs successfully.
 
 All implemented tests pass, and the complete prototype runs successfully.
 
+## System Diagram
+<img width="584" height="417" alt="image" src="https://github.com/user-attachments/assets/afcba163-215b-48ec-b0c6-ef7b89462883" />
+
+
 ## Attribution Table
 
 | Section / Component | Team Member(s) | Contribution |
