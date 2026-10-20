@@ -7,7 +7,7 @@ import java.time.format.DateTimeParseException;
 // -------------------------------------------------------------------------
 /**
  * Represents an assignment in TaskTrack.
- * Stores assignment details, priority, and completion status.
+ * Stores assignment details and completion status.
  *
  * @author zaraaomerr
  * @version 19 Oct 2026
@@ -22,7 +22,6 @@ public class Assignment implements Item {
     private String dueDate;
     private String course;
     private boolean completed;
-    private String priority;
 
 
     //~ Constructors ..........................................................
@@ -46,7 +45,6 @@ public class Assignment implements Item {
         String course) {
 
         this.id = id;
-        this.priority = "Medium";
         update(title, text, dueDate, course);
         this.completed = false;
     }
@@ -114,17 +112,6 @@ public class Assignment implements Item {
 
     // ----------------------------------------------------------
     /**
-     * Returns the assignment priority.
-     *
-     * @return Low, Medium, or High
-     */
-    public String getPriority() {
-        return priority;
-    }
-
-
-    // ----------------------------------------------------------
-    /**
      * Checks whether the assignment is complete.
      *
      * @return true if completed, false otherwise
@@ -187,28 +174,6 @@ public class Assignment implements Item {
 
     // ----------------------------------------------------------
     /**
-     * Updates the priority of the assignment.
-     *
-     * @param value Low, Medium, or High priority
-     * @throws IllegalArgumentException if priority is invalid
-     */
-    public void setPriority(String value) {
-        if (value == null
-            || !(value.equalsIgnoreCase("Low")
-                || value.equalsIgnoreCase("Medium")
-                || value.equalsIgnoreCase("High"))) {
-
-            throw new IllegalArgumentException(
-                "Priority must be Low, Medium, or High.");
-        }
-
-        priority = value.substring(0, 1).toUpperCase()
-            + value.substring(1).toLowerCase();
-    }
-
-
-    // ----------------------------------------------------------
-    /**
      * Checks whether the assignment is overdue.
      * Completed assignments are not considered overdue.
      *
@@ -240,7 +205,6 @@ public class Assignment implements Item {
             + " | Description: " + text
             + " | Course: " + course
             + " | Due: " + dueDate
-            + " | Completed: " + completed
-            + " | Priority: " + priority;
+            + " | Completed: " + completed;
     }
 }

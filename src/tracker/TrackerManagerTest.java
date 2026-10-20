@@ -231,48 +231,6 @@ public class TrackerManagerTest extends TestCase {
     }
 
 
-    // ----------------------------------------------------------
-    /**
-     * Tests assigning a priority level.
-     */
-    public void testPriority() {
-
-        Assignment assignment = manager.createAssignment(
-            "Homework", "Java", "2026-10-20", "CS");
-
-        assertEquals("Medium", assignment.getPriority());
-
-        assertTrue(manager.setAssignmentPriority(
-            String.valueOf(assignment.getId()),
-            "high"));
-
-        assertEquals("High", assignment.getPriority());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests rejecting an invalid priority.
-     */
-    public void testInvalidPriority() {
-
-        Assignment assignment = manager.createAssignment(
-            "Homework", "Java", "2026-10-20", "CS");
-
-        try {
-            manager.setAssignmentPriority(
-                String.valueOf(assignment.getId()),
-                "Urgent");
-
-            fail("Expected IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertEquals(
-                "Medium",
-                assignment.getPriority());
-        }
-    }
-
 
     // ----------------------------------------------------------
     /**

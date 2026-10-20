@@ -47,7 +47,6 @@ public class AssignmentTest extends TestCase {
             assignment.getText());
         assertEquals("2026-10-20", assignment.getDueDate());
         assertEquals("CS 2114", assignment.getCourse());
-        assertEquals("Medium", assignment.getPriority());
     }
 
 
@@ -323,61 +322,6 @@ public class AssignmentTest extends TestCase {
     }
 
 
-    // ----------------------------------------------------------
-    /**
-     * Tests the default priority level.
-     */
-    public void testDefaultPriority() {
-        assertEquals("Medium", assignment.getPriority());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests changing an assignment's priority.
-     */
-    public void testSetPriority() {
-        assignment.setPriority("High");
-
-        assertEquals("High", assignment.getPriority());
-
-        assignment.setPriority("low");
-
-        assertEquals("Low", assignment.getPriority());
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests rejecting an invalid priority.
-     */
-    public void testInvalidPriority() {
-        try {
-            assignment.setPriority("Urgent");
-
-            fail("Expected an IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertEquals("Medium", assignment.getPriority());
-        }
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Tests rejecting a null priority.
-     */
-    public void testNullPriority() {
-        try {
-            assignment.setPriority(null);
-
-            fail("Expected an IllegalArgumentException");
-        }
-        catch (IllegalArgumentException e) {
-            assertEquals("Medium", assignment.getPriority());
-        }
-    }
-
 
     // ----------------------------------------------------------
     /**
@@ -451,8 +395,7 @@ public class AssignmentTest extends TestCase {
             + " | Description: Complete Java exercises"
             + " | Course: CS 2114"
             + " | Due: 2026-10-20"
-            + " | Completed: false"
-            + " | Priority: Medium";
+            + " | Completed: false";
 
         assertEquals(expected, assignment.toString());
     }
@@ -470,8 +413,7 @@ public class AssignmentTest extends TestCase {
             + " | Description: Complete Java exercises"
             + " | Course: CS 2114"
             + " | Due: 2026-10-20"
-            + " | Completed: true"
-            + " | Priority: Medium";
+            + " | Completed: true";
 
         assertEquals(expected, assignment.toString());
     }
@@ -493,8 +435,7 @@ public class AssignmentTest extends TestCase {
             + " | Description: Finish linked chain"
             + " | Course: CS 2114"
             + " | Due: 2026-10-25"
-            + " | Completed: false"
-            + " | Priority: Medium";
+            + " | Completed: false";
 
         assertEquals(expected, assignment.toString());
     }

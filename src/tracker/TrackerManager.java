@@ -214,28 +214,6 @@ public class TrackerManager {
     }
 
 
-    // ----------------------------------------------------------
-    /**
-     * Updates an assignment's priority.
-     *
-     * @param id assignment ID
-     * @param priority new priority level
-     * @return true if the priority was updated
-     * @throws IllegalArgumentException if priority is invalid
-     */
-    public boolean setAssignmentPriority(
-        String id,
-        String priority) {
-
-        Item item = findById(id);
-
-        if (!(item instanceof Assignment)) {
-            return false;
-        }
-
-        ((Assignment)item).setPriority(priority);
-        return true;
-    }
 
 
     // ----------------------------------------------------------

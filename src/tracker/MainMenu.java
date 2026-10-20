@@ -157,14 +157,10 @@ public class MainMenu {
                         break;
 
                     case "15":
-                        updatePriority();
-                        break;
-
-                    case "16":
                         showCourseWorkload();
                         break;
 
-                    case "17":
+                    case "16":
                         showWeeklySchedule();
                         break;
 
@@ -213,9 +209,8 @@ public class MainMenu {
         System.out.println("12. Edit Assignment");
         System.out.println("13. Edit Note");
         System.out.println("14. Filter by Course");
-        System.out.println("15. Set Assignment Priority");
-        System.out.println("16. Course Workload Summary");
-        System.out.println("17. Weekly Schedule");
+        System.out.println("15. Course Workload Summary");
+        System.out.println("16. Weekly Schedule");
         System.out.println("0.  Exit");
         System.out.println("===============================");
     }
@@ -452,31 +447,6 @@ public class MainMenu {
         showList(
             "Course Assignments",
             manager.filterByCourse(course));
-    }
-
-
-    // ----------------------------------------------------------
-    /**
-     * Updates the priority of an assignment.
-     */
-    private void updatePriority() {
-
-        String id = readLine("Assignment ID");
-
-        if (!(manager.findById(id) instanceof Assignment)) {
-            System.out.println("Assignment not found.");
-            return;
-        }
-
-        String priority =
-            readLine("Priority (Low/Medium/High)");
-
-        if (manager.setAssignmentPriority(id, priority)) {
-            System.out.println("Priority updated.");
-        }
-        else {
-            System.out.println("Assignment not found.");
-        }
     }
 
 
