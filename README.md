@@ -55,7 +55,7 @@ All implemented tests pass, and the complete prototype runs successfully.
 | `TrackerManager.java` | Sreenidhi | Wrote and revised the manager class with GenAI assistance; implemented item creation, ID lookup, assignment completion, and overdue detection |
 | `TrackerManagerTest.java` | Sreenidhi | Developed, reviewed, and ran unit tests for the manager |
 | `MainMenu.java` | Miguel | Wrote the console interface and connected menu operations to TrackerManager with GenAI assistance |
-| `README.md` | Sreenidhi | Drafted and revised the project documentation, Reflection, Next Steps, and attribution table with GenAI assistance |
+| `README.md` | Miguel | Drafted and revised the project documentation, Reflection, Next Steps, and attribution table with GenAI assistance |
 | Integration and testing | All team members | Integrated the classes, reviewed compatibility, and verified that the complete prototype runs and all tests pass |
 
 ### Code Ownership and Integration
