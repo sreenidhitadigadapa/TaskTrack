@@ -37,65 +37,6 @@ All implemented tests pass, and the prototype compiles and runs successfully.
 
 All implemented tests pass, and the complete prototype runs successfully.
 
-## Reflection
-
-### 1. What changed from our original specification?
-
-Our original plan included more features for managing assignments and notes, such as searching, removing items, editing items, and organizing assignments by course. For this prototype, we focused on five working features: adding assignments, adding notes, completing assignments, viewing all items, and viewing overdue assignments.
-
-We also implemented overdue assignment detection as our working stretch goal. This allowed us to demonstrate additional functionality while keeping the prototype manageable and functional.
-
-For our final application, we plan to implement all the extended features outlined in our original specification so that the completed project includes the full functionality.
-
-### 2. What changes did we make to LinkedChain?
-
-We used the instructor-provided `LinkedChain<T>` without changing its generic storage logic. Its existing public methods were sufficient for our prototype.
-
-We store both `Assignment` and `Note` objects using `LinkedChain<Item>`. The application interacts with the chain through public methods such as `addToEnd()`, `get()`, `size()`, and `isEmpty()`.
-
-All application-specific logic remains in `TrackerManager`, keeping the linked chain reusable for different element types.
-
-### 3. What unknowns remain?
-
-We still need to decide how to save assignments and notes so they remain available after the program closes. We also need to determine how to expand the menu as we add more features without making it difficult to use.
-
-Another consideration is improving the efficiency of searching and traversing the linked chain as more items are added.
-
-### 4. What does not work yet?
-
-All features included in the current prototype work, and all implemented tests pass.
-
-However, the full MVP is not complete. The current menu does not support searching for items, removing items, editing assignments or notes, filtering assignments by course, or saving data between sessions.
-
-These features will be added during the next development phase.
-
-## Next Steps
-
-Our next goal is to expand the working prototype into the full MVP. 
-
-| Priority | Task | Owner | Planned Tests |
-|----------|------|-------|---------------|
-| 1 | Add item removal functionality | Sreenidhi | Existing and nonexistent ID tests |
-| 2 | Add assignment editing through the application | Zara | Valid and invalid update tests |
-| 3 | Add menu options for editing and removing items | Miguel | Menu interaction and invalid-input tests |
-| 4 | Add search functionality | Sreenidhi | Matching and nonmatching keyword tests |
-| 5 | Add note editing through the application | Zara | Valid and invalid update tests |
-| 6 | Improve menu navigation and user feedback | Miguel | Invalid input and navigation tests |
-| 7 | Add course filtering | Sreenidhi | Matching and nonmatching course tests |
-| 8 | Add assignment priority levels | Zara | Priority assignment and update tests |
-| 9 | Integrate new features into the console menu | Miguel | Menu interaction and integration tests |
-| 10 | Expand unit and integration tests | All team members | Regression and edge-case tests |
-
-We will implement and test each feature individually before integrating it into the complete application. Each team member will be responsible for their assigned components, and we will work together to verify that all features function correctly.
-
-### Stretch Goals
-
-- **Completed:** Overdue assignment detection, including displaying overdue assignments through the console menu.
-- **Not completed yet:** Course filtering and assignment priority levels.
-- **Not currently planned:** Recurring assignments, weekly schedule view, and course workload summary.
-
-We will prioritize completing the remaining MVP features before implementing additional stretch goals.
-
 ## Attribution Table
 
 | Section / Component | Team Member(s) | Contribution |
